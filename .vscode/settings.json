@@ -1,0 +1,17 @@
+{
+  "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
+  "cquery.index.extraClangArguments": [
+    "-I./common/",
+    "-I./common/Linux/",
+    "-lXt",
+    "-lX11",
+    "-lGL",
+    "-lm",
+    "-Wall",
+    "-Wextra",
+    "-Weffc++",
+    "-pedantic",
+    "-Wsuggest-attribute=const",
+    "-std=c++17"
+  ]
+}
