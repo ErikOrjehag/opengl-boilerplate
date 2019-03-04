@@ -1,0 +1,8 @@
+*vscode*
+*cquery*
+*o
+*.out
+tools/*out*
+**/*.gdb_history
+bin/*
+build/*
