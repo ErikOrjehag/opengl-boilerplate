@@ -1,10 +1,10 @@
 # set this variable to the director in which you saved the common files
-commondir = ./common/
+COMMON_DIR = ./common/
 
-COMMON_SOURCE = $(commondir)GL_utilities.c $(commondir)VectorUtils3.c $(commondir)loadobj.c $(commondir)LoadTGA.c $(commondir)Linux/MicroGlut.c
+COMMON_SOURCE = $(COMMON_DIR)GL_utilities.c $(COMMON_DIR)VectorUtils3.c $(COMMON_DIR)loadobj.c $(COMMON_DIR)LoadTGA.c $(COMMON_DIR)Linux/MicroGlut.c
 SRC = src/
 SOURCE_FILES = main.cc
-OBJECTS=$(patsubst %, $(SRC)%, $(SOURCE_FILES))
+SOURCE_FILES_PADDED=$(patsubst %, $(SRC)%, $(SOURCE_FILES))
 CCFLAGS = -g -std=c++17
 WARNFLAGS = -Wall -Wextra -pedantic -Wsuggest-attribute=const
 # WARNFLAGS = -Wall -Wextra -Weffc++ -pedantic -Wsuggest-attribute=const
@@ -20,23 +20,23 @@ COMMON_OFILES = $(BUILD_DIR)GL_utilities.o $(BUILD_DIR)VectorUtils3.o $(BUILD_DI
 all: $(BUILD_DIR)main.o $(COMMON_OFILES)
 	g++ $(CCFLAGS) $(BUILD_DIR)main.o $(COMMON_OFILES)  -o $(OUT) $(LIB_FLAGS)
 
-$(BUILD_DIR)main.o: $(OBJECTS)
-	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(OBJECTS) -I$(SRC) -I$(commondir) -I$(commondir)Linux -o $(BUILD_DIR)main.o
+$(BUILD_DIR)main.o: $(SOURCE_FILES_PADDED)
+	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SOURCE_FILES_PADDED) -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)main.o
 
-$(BUILD_DIR)GL_utilities.o: $(commondir)GL_utilities.c $(commondir)GL_utilities.h
-	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(commondir)GL_utilities.c -I$(commondir) -I$(commondir)Linux -o $(BUILD_DIR)GL_utilities.o
+$(BUILD_DIR)GL_utilities.o: $(COMMON_DIR)GL_utilities.c $(COMMON_DIR)GL_utilities.h
+	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(COMMON_DIR)GL_utilities.c -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)GL_utilities.o
 
-$(BUILD_DIR)VectorUtils3.o: $(commondir)VectorUtils3.c $(commondir)VectorUtils3.h
-	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(commondir)VectorUtils3.c -I$(commondir) -I$(commondir)Linux -o $(BUILD_DIR)VectorUtils3.o
+$(BUILD_DIR)VectorUtils3.o: $(COMMON_DIR)VectorUtils3.c $(COMMON_DIR)VectorUtils3.h
+	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(COMMON_DIR)VectorUtils3.c -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)VectorUtils3.o
 
-$(BUILD_DIR)loadobj.o: $(commondir)loadobj.c $(commondir)loadobj.h
-	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(commondir)loadobj.c -I$(commondir) -I$(commondir)Linux -o $(BUILD_DIR)loadobj.o
+$(BUILD_DIR)loadobj.o: $(COMMON_DIR)loadobj.c $(COMMON_DIR)loadobj.h
+	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(COMMON_DIR)loadobj.c -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)loadobj.o
 
-$(BUILD_DIR)LoadTGA.o: $(commondir)LoadTGA.c $(commondir)LoadTGA.h
-	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(commondir)LoadTGA.c -I$(commondir) -I$(commondir)Linux -o $(BUILD_DIR)LoadTGA.o
+$(BUILD_DIR)LoadTGA.o: $(COMMON_DIR)LoadTGA.c $(COMMON_DIR)LoadTGA.h
+	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(COMMON_DIR)LoadTGA.c -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)LoadTGA.o
 
-$(BUILD_DIR)MicroGlut.o: $(commondir)Linux/MicroGlut.c $(commondir)Linux/MicroGlut.h
-	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(commondir)Linux/MicroGlut.c -I$(commondir) -I$(commondir)Linux -o $(BUILD_DIR)MicroGlut.o
+$(BUILD_DIR)MicroGlut.o: $(COMMON_DIR)Linux/MicroGlut.c $(COMMON_DIR)Linux/MicroGlut.h
+	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(COMMON_DIR)Linux/MicroGlut.c -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)MicroGlut.o
 
 
 clean:
