@@ -25,7 +25,7 @@ void LoadTGASetMipmapping(bool active) {
     gMipmap = active;
 }
 
-bool LoadTGATextureData(char *filename, TextureData *texture)  // Loads A TGA File Into Memory
+bool LoadTGATextureData(const char *filename, TextureData *texture)  // Loads A TGA File Into Memory
 {
     GLuint i;
     GLubyte

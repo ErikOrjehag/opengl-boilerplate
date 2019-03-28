@@ -46,7 +46,7 @@ typedef struct TextureData		// Create A Structure for .tga loading.
 bool LoadTGATexture(char *filename, TextureData *texture);
 void LoadTGATextureSimple(char *filename, GLuint *tex);
 void LoadTGASetMipmapping(bool active);
-bool LoadTGATextureData(char *filename, TextureData *texture);
+bool LoadTGATextureData(const char *filename, TextureData *texture);
 
 // Constants for SaveTGA
 #define	TGA_ERROR_FILE_OPEN				-5

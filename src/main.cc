@@ -6,10 +6,34 @@
 
 #include "Terrain.hh"
 
-Terrain* terrain;
+Terrain terrain;
 
 void init() {
-    terrain = new Terrain();
+
+    /* SETUP PROGRAMS */
+    GLuint terrain_program = loadShaders("terrain-5.vert", "terrain-5.frag");
+
+    glUseProgram(terrain_program);
+    glUniformMatrix4fv(glGetUniformLocation(terrain_program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+    glUniform1i(glGetUniformLocation(terrain_program, "grass"), 0);
+    glUniform1i(glGetUniformLocation(terrain_program, "dirt"), 1);
+    
+    /* LOAD TEXTURES */
+    GLuint grass, dirt;
+    LoadTGATextureSimple("grass.tga", &grass);
+    LoadTGATextureSimple("dirt.tga", &dirt);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, grass);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, dirt);
+
+    /* LOAD MODELS */
+    terrain.generate("assets/textures/terrain.tga");
+    terrain.setProgram(terrain_program);
+
+    /* INIT GL */
     glClearColor(0.2, 0.2, 0.5, 0);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
