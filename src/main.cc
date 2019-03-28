@@ -10,8 +10,10 @@ Terrain terrain;
 
 void init() {
 
+    mat4 projectionMatrix = frustum(-0.2, 0.2, -0.2, 0.2, 0.2, 50.0);
+
     /* SETUP PROGRAMS */
-    GLuint terrain_program = loadShaders("terrain-5.vert", "terrain-5.frag");
+    GLuint terrain_program = loadShaders("assets/shaders/terrain.vert", "assets/shaders/terrain.frag");
 
     glUseProgram(terrain_program);
     glUniformMatrix4fv(glGetUniformLocation(terrain_program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);

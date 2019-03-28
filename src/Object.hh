@@ -6,7 +6,7 @@ class Object {
 
     public:
     Object();
-    virtual ~Object() = default;
+    virtual ~Object();
 
     void setProgram(GLuint program);
     void draw();
