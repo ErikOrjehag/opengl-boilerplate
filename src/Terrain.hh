@@ -13,6 +13,6 @@ public:
 private:
     float texHeight(int x, int z);
 
-    TextureData* tex;
+    TextureData tex{};
 
 };
