@@ -1,7 +1,3 @@
 #include "Skybox.hh"
 
-Skybox::Skybox() :
-    Object(false)
-{
-
-}
+Skybox::Skybox() : Object(false) { hasNormals = false; }

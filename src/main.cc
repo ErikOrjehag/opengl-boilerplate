@@ -1,13 +1,13 @@
 
 #include <algorithm>
 
-#include "VectorUtils3.h"
 #include "GL_utilities.h"
 #include "MicroGlut.h"
+#include "VectorUtils3.h"
 #include "loadobj.h"
 
-#include "Terrain.hh"
 #include "Skybox.hh"
+#include "Terrain.hh"
 
 Terrain terrain;
 Skybox sky;
@@ -16,7 +16,7 @@ mat4 camMatrix;
 
 float yrot = 0;
 float xrot = M_PI * 3.f / 4.f;
-vec3 camPos = {1, 8, 1};
+vec3 camPos = { 1, 8, 1 };
 float camSpeed = 0.7;
 
 int mousex;
@@ -24,30 +24,35 @@ int mousey;
 int buttonState = GLUT_UP;
 
 void init() {
-
-    camMatrix = MultMat4(Rx(yrot), MultMat4(Ry(xrot), T(-camPos.x, -camPos.y, -camPos.z)));
+    camMatrix = MultMat4(
+        Rx(yrot), MultMat4(Ry(xrot), T(-camPos.x, -camPos.y, -camPos.z)));
 
     mat4 projectionMatrix = frustum(-0.2, 0.2, -0.2, 0.2, 0.2, 50.0);
 
     /* SETUP PROGRAMS */
-    GLuint terrainShader = loadShaders("assets/shaders/terrain.vert", "assets/shaders/terrain.frag");
+    GLuint terrainShader = loadShaders("assets/shaders/terrain.vert",
+                                       "assets/shaders/terrain.frag");
     glUseProgram(terrainShader);
-    glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+    glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1,
+                       GL_TRUE, projectionMatrix.m);
     glUniform1i(glGetUniformLocation(terrainShader, "grass"), 0);
     glUniform1i(glGetUniformLocation(terrainShader, "dirt"), 1);
 
-    GLuint skyShader = loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
-    glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+    GLuint skyShader =
+        loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
+    glUseProgram(skyShader);
+    glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1,
+                       GL_TRUE, projectionMatrix.m);
     glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
 
     printError("ERROR: SETUP PROGRAMS");
-    
+
     /* SETUP TEXTURES */
     GLuint grassTex, dirtTex, skyTex;
     LoadTGATextureSimple("assets/textures/grass.tga", &grassTex);
     LoadTGATextureSimple("assets/textures/dirt.tga", &dirtTex);
     LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
-    
+
     printError("ERROR: SETUP TEXTURES");
 
     /* LOAD MODELS */
@@ -55,10 +60,11 @@ void init() {
     terrain.setShader(terrainShader);
     terrain.addTexture(grassTex);
     terrain.addTexture(dirtTex);
-    
+
     sky.setShader(skyShader);
+    sky.loadModel("assets/models/skybox.obj");
     sky.addTexture(skyTex);
-    
+
     /* INIT GL */
     glClearColor(0.2, 0.2, 0.5, 0);
     glEnable(GL_DEPTH_TEST);
@@ -66,8 +72,7 @@ void init() {
     printError("GL inits");
 }
 
-void display()
-{
+void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     sky.draw(camMatrix);
@@ -88,14 +93,15 @@ void updateCam() {
     if (glutKeyIsDown('w')) mz -= 1;
     if (glutKeyIsDown('r')) camPos.y += camSpeed;
     if (glutKeyIsDown('e')) camPos.y -= camSpeed;
-    
+
     camPos.x += mx * camSpeed * cos(xrot) - mz * camSpeed * sin(xrot);
     camPos.z += mx * camSpeed * sin(xrot) + mz * camSpeed * cos(xrot);
 
     float h = terrain.height(camPos.x, camPos.z);
     camPos.y = h + 1.86;
-    
-    camMatrix = MultMat4(Rx(yrot), MultMat4(Ry(xrot), T(-camPos.x, -camPos.y, -camPos.z)));
+
+    camMatrix = MultMat4(
+        Rx(yrot), MultMat4(Ry(xrot), T(-camPos.x, -camPos.y, -camPos.z)));
 }
 
 void timer(int i) {
@@ -104,9 +110,7 @@ void timer(int i) {
     updateCam();
 }
 
-void mouseButton(int button, int state, int x, int y) {
-    buttonState = state;
-}
+void mouseButton(int button, int state, int x, int y) { buttonState = state; }
 
 void mouseMove(int x, int y) {
     if (buttonState == GLUT_DOWN) {
@@ -118,7 +122,6 @@ void mouseMove(int x, int y) {
     mousex = x;
     mousey = y;
 }
-
 
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
