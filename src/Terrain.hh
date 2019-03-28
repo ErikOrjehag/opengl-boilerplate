@@ -5,6 +5,8 @@
 #include <string>
 
 class Terrain : public Object {
+    
+    using Object::Object;
 
 public:
     void generate(std::string terrain_file);

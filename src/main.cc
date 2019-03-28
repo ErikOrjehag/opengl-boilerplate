@@ -7,8 +7,11 @@
 #include "loadobj.h"
 
 #include "Terrain.hh"
+#include "Skybox.hh"
 
 Terrain terrain;
+Skybox sky;
+
 mat4 camMatrix;
 
 float yrot = 0;
@@ -27,12 +30,15 @@ void init() {
     mat4 projectionMatrix = frustum(-0.2, 0.2, -0.2, 0.2, 0.2, 50.0);
 
     /* SETUP PROGRAMS */
-    GLuint terrain_program = loadShaders("assets/shaders/terrain.vert", "assets/shaders/terrain.frag");
+    GLuint terrainShader = loadShaders("assets/shaders/terrain.vert", "assets/shaders/terrain.frag");
+    glUseProgram(terrainShader);
+    glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+    glUniform1i(glGetUniformLocation(terrainShader, "grass"), 0);
+    glUniform1i(glGetUniformLocation(terrainShader, "dirt"), 1);
 
-    glUseProgram(terrain_program);
-    glUniformMatrix4fv(glGetUniformLocation(terrain_program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
-    glUniform1i(glGetUniformLocation(terrain_program, "grass"), 0);
-    glUniform1i(glGetUniformLocation(terrain_program, "dirt"), 1);
+    GLuint skyShader = loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
+    glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+    glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
 
     printError("ERROR: SETUP PROGRAMS");
     
@@ -46,9 +52,12 @@ void init() {
 
     /* LOAD MODELS */
     terrain.generate("assets/textures/terrain.tga");
-    terrain.setProgram(terrain_program);
+    terrain.setShader(terrainShader);
     terrain.addTexture(grassTex);
     terrain.addTexture(dirtTex);
+    
+    sky.setShader(skyShader);
+    sky.addTexture(skyTex);
     
     /* INIT GL */
     glClearColor(0.2, 0.2, 0.5, 0);
@@ -61,6 +70,7 @@ void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    sky.draw(camMatrix);
     terrain.draw(camMatrix);
 
     glutSwapBuffers();

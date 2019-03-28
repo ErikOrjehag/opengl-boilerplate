@@ -1,15 +1,17 @@
 #version 150
 
-in vec3 in_Position;
-in vec2 in_TexCoord;
-out vec2 frag_TexCoord;
+in vec3 inPosition;
+in vec2 inTexCoord;
+out vec2 fragTexCoord;
 
 uniform mat4 worldToView;
 uniform mat4 projection;
+uniform mat4 modelToWorld;
 
 void main(void)
 {
-	gl_Position = projection * mat4(mat3(worldToView)) * vec4(in_Position + vec3(0, -0.07, 0), 1.0);
+	// modelToWorld must be identity :D
+	gl_Position = modelToWorld * projection * mat4(mat3(worldToView)) * vec4(inPosition + vec3(0, -0.07, 0), 1.0);
 
-	frag_TexCoord = in_TexCoord;
+	fragTexCoord = inTexCoord;
 }
