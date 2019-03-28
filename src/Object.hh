@@ -6,13 +6,13 @@ class Object {
 
     public:
     Object();
-    virtual ~Object();
+    virtual ~Object() = default;
 
     void setProgram(GLuint program);
-    void draw();
+    void draw(mat4 cam);
 
     protected:
-    Model* model = NULL;
+    Model model;
     mat4 toWorld;
     GLuint program;
 
