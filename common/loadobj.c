@@ -7,11 +7,13 @@
 // Partially corrected formatting. (It is a mess!)
 // 130227: Error reporting in DrawModel
 // 130422: Added ScaleModel
-// 150909: Frees up temporary "Mesh" memory i LoadModel. Thanks to Simon Keisala for finding this!
-// Added DisposeModel. Limited the number of error printouts, thanks to Rasmus Hytter for this suggestion!
-// 160302: Uses fopen_s on Windows, as suggested by Jesper Post. Should reduce warnings a bit.
-// 160510: Uses calloc instead of malloc (for safety) in many places where it could possibly cause problems.
-// 170406: Added "const" to string arguments to make C++ happier.
+// 150909: Frees up temporary "Mesh" memory i LoadModel. Thanks to Simon Keisala
+// for finding this! Added DisposeModel. Limited the number of error printouts,
+// thanks to Rasmus Hytter for this suggestion! 160302: Uses fopen_s on Windows,
+// as suggested by Jesper Post. Should reduce warnings a bit. 160510: Uses
+// calloc instead of malloc (for safety) in many places where it could possibly
+// cause problems. 170406: Added "const" to string arguments to make C++
+// happier.
 
 #include "loadobj.h"
 #include <math.h>
@@ -66,7 +68,7 @@ static FILE *fp;
 static int intValue[3];
 static float floatValue[3];
 static int vertCount, texCount, normalsCount, coordCount;
-//static int groupCount; // Number of "g" found.
+// static int groupCount; // Number of "g" found.
 
 #ifndef false
 #define false 0
@@ -104,13 +106,14 @@ static void OBJGetToken(int *tokenType) {
         *tokenType = crlfToken;
         //		while (c == 13 && c == 10)
         //				c = getc(fp);
-    } else if ((c >= '0' && c <= '9') || c == '-' || c == '.')  // Numerical value
+    } else if ((c >= '0' && c <= '9') || c == '-' ||
+               c == '.')  // Numerical value
     {
         *tokenType = kInt;
         i = 0;
-        while (c != 13 && c != 10 && c != 32 && c != 9 && c != '/' && c != EOF) {
-            if (c == '.' || c == 'E')
-                *tokenType = kReal;
+        while (c != 13 && c != 10 && c != 32 && c != 9 && c != '/' &&
+               c != EOF) {
+            if (c == '.' || c == 'E') *tokenType = kReal;
             s[i++] = c;
             c = getc(fp);
         }
@@ -122,7 +125,8 @@ static void OBJGetToken(int *tokenType) {
         {
             c = getc(fp);
             i = 0;
-            while (c != 13 && c != 10 && c != 32 && c != 9 && c != '/' && c != EOF) {
+            while (c != 13 && c != 10 && c != 32 && c != 9 && c != '/' &&
+                   c != EOF) {
                 s[i++] = c;
                 c = getc(fp);
             }
@@ -141,7 +145,8 @@ static void OBJGetToken(int *tokenType) {
         {
             c = getc(fp);
             i = 0;
-            while (c != 13 && c != 10 && c != 32 && c != 9 && c != '/' && c != EOF) {
+            while (c != 13 && c != 10 && c != 32 && c != 9 && c != '/' &&
+                   c != EOF) {
                 s[i++] = c;
                 c = getc(fp);
             }
@@ -170,20 +175,14 @@ static void OBJGetToken(int *tokenType) {
         *tokenType = kUnknown;
         // Compare string to symbols
 
-        if (strcmp(s, "v") == 0)
-            *tokenType = vToken;
-        if (strcmp(s, "vn") == 0)
-            *tokenType = vnToken;
-        if (strcmp(s, "vt") == 0)
-            *tokenType = vtToken;
-        if (strcmp(s, "f") == 0)
-            *tokenType = fToken;
+        if (strcmp(s, "v") == 0) *tokenType = vToken;
+        if (strcmp(s, "vn") == 0) *tokenType = vnToken;
+        if (strcmp(s, "vt") == 0) *tokenType = vtToken;
+        if (strcmp(s, "f") == 0) *tokenType = fToken;
         if (strcmp(s, "g") == 0)  // group
             *tokenType = gToken;
-        if (strcmp(s, "mtllib") == 0)
-            *tokenType = mtllibToken;
-        if (strcmp(s, "usemtl") == 0)
-            *tokenType = usemtlToken;
+        if (strcmp(s, "mtllib") == 0) *tokenType = mtllibToken;
+        if (strcmp(s, "usemtl") == 0) *tokenType = usemtlToken;
         //		if (strcmp(s, "o") == 0) // "o" means...?
         //			*tokenType = oToken;
     }
@@ -194,8 +193,7 @@ static void SkipToCRLF() {
     char c = 0;
 
     if (!atLineEnd)
-        while (c != 10 && c != 13 && c != EOF)
-            c = getc(fp);
+        while (c != 10 && c != 13 && c != EOF) c = getc(fp);
 }
 
 static void ReadOneVertex(MeshPtr theMesh) {
@@ -204,14 +202,11 @@ static void ReadOneVertex(MeshPtr theMesh) {
 
     // Three floats expected
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        x = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) x = floatValue[0];
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        y = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) y = floatValue[0];
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        z = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) z = floatValue[0];
     SkipToCRLF();
 
     // Write to array if it exists
@@ -229,11 +224,9 @@ static void ReadOneTexture(MeshPtr theMesh) {
 
     // Two floats expected
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        s = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) s = floatValue[0];
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        t = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) t = floatValue[0];
     SkipToCRLF();
 
     // Write to array if it exists
@@ -250,14 +243,11 @@ static void ReadOneNormal(MeshPtr theMesh) {
 
     // Three floats expected
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        x = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) x = floatValue[0];
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        y = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) y = floatValue[0];
     OBJGetToken(&tokenType);
-    if (tokenType == kInt || tokenType == kReal)
-        z = floatValue[0];
+    if (tokenType == kInt || tokenType == kReal) z = floatValue[0];
     SkipToCRLF();
 
     // Write to array if it exists
@@ -378,18 +368,22 @@ static void ParseOBJ(MeshPtr theMesh) {
                 break;
             case kUnknown:
                 SkipToCRLF();
-                //while (tokenType != crlfToken && tokenType != kEOF)
+                // while (tokenType != crlfToken && tokenType != kEOF)
                 //	OBJGetToken(&tokenType);
                 break;
             case gToken:  // New part!
                 // Expand the index start lists
                 printf("Found part\n");
-                if (coordCount > 0)  // If no data has been seen, this must be the first group!
+                if (coordCount > 0)  // If no data has been seen, this must be
+                                     // the first group!
                 {
                     theMesh->groupCount += 1;
-                    if (theMesh->coordStarts != NULL)  // NULL if we are just counting
+                    if (theMesh->coordStarts !=
+                        NULL)  // NULL if we are just counting
                     {
-                        theMesh->coordStarts = (int *)realloc(theMesh->coordStarts, (theMesh->groupCount + 1) * sizeof(int));
+                        theMesh->coordStarts = (int *)realloc(
+                            theMesh->coordStarts,
+                            (theMesh->groupCount + 1) * sizeof(int));
                         theMesh->coordStarts[theMesh->groupCount] = coordCount;
                     }
                     printf("groupCount = %d\n", theMesh->groupCount);
@@ -399,12 +393,12 @@ static void ParseOBJ(MeshPtr theMesh) {
                 break;
             case mtllibToken:  // Material spec library
                 // TO DO
-                //ReadMaterialLibrary(???);
+                // ReadMaterialLibrary(???);
                 SkipToCRLF();
                 break;
             case usemtlToken:  // Use material!
                 // TO DO
-                //ReadMaterial(???);
+                // ReadMaterial(???);
                 // Save to Mesh material data
                 SkipToCRLF();
                 break;
@@ -444,7 +438,8 @@ static struct Mesh *LoadOBJ(const char *filename) {
     normalsCount = 0;
     coordCount = 0;
 
-// It seems Windows/VS doesn't like fopen any more, but fopen_s is not on the others.
+// It seems Windows/VS doesn't like fopen any more, but fopen_s is not on the
+// others.
 #if defined(_WIN32)
     fopen_s(&fp, filename, "r");
 #else
@@ -465,15 +460,18 @@ static struct Mesh *LoadOBJ(const char *filename) {
     if (texCount > 0)
         theMesh->textureCoords = (GLfloat *)malloc(sizeof(GLfloat) * texCount);
     if (normalsCount > 0)
-        theMesh->vertexNormals = (GLfloat *)malloc(sizeof(GLfloat) * normalsCount);
+        theMesh->vertexNormals =
+            (GLfloat *)malloc(sizeof(GLfloat) * normalsCount);
     if (hasPositionIndices)
         //		theMesh->coordIndex = malloc(sizeof(int) * coordCount);
         theMesh->coordIndex = (int *)calloc(coordCount, sizeof(int));
     if (hasNormalIndices)
-        //		theMesh->normalsIndex = malloc(sizeof(int) * coordCount);
+        //		theMesh->normalsIndex = malloc(sizeof(int) *
+        // coordCount);
         theMesh->normalsIndex = (int *)calloc(coordCount, sizeof(int));
     if (hasTexCoordIndices)
-        //		theMesh->textureIndex = malloc(sizeof(int) * coordCount);
+        //		theMesh->textureIndex = malloc(sizeof(int) *
+        // coordCount);
         theMesh->textureIndex = (int *)calloc(coordCount, sizeof(int));
 
     theMesh->coordStarts = (int *)malloc(sizeof(int));
@@ -486,7 +484,8 @@ static struct Mesh *LoadOBJ(const char *filename) {
     normalsCount = 0;
     coordCount = 0;
 
-// It seems Windows/VS doesn't like fopen any more, but fopen_s is not on the others.
+// It seems Windows/VS doesn't like fopen any more, but fopen_s is not on the
+// others.
 #if defined(_WIN32)
     fopen_s(&fp, filename, "r");
 #else
@@ -503,12 +502,14 @@ static struct Mesh *LoadOBJ(const char *filename) {
 
     // Counters for tex and normals, texCount and normalsCount
     theMesh->texCount = texCount / 2;
-    theMesh->normalsCount = normalsCount / 3;  // Should be the same as vertexCount!
+    theMesh->normalsCount =
+        normalsCount / 3;  // Should be the same as vertexCount!
     // This assumption could make handling of some models break!
 
     // Add a finish to coordStarts
     if (theMesh->coordStarts != NULL) {
-        theMesh->coordStarts = (int *)realloc(theMesh->coordStarts, (theMesh->groupCount + 1) * sizeof(int));
+        theMesh->coordStarts = (int *)realloc(
+            theMesh->coordStarts, (theMesh->groupCount + 1) * sizeof(int));
         theMesh->coordStarts[theMesh->groupCount + 1] = coordCount;
     }
 
@@ -540,10 +541,12 @@ void DecomposeToTriangles(struct Mesh *theMesh) {
     //	newCoords = malloc(sizeof(int) * triangleCount * 3);
     newCoords = (int *)calloc(triangleCount * 3, sizeof(int));
     if (theMesh->normalsIndex != NULL)
-        //		newNormalsIndex = malloc(sizeof(int) * triangleCount * 3);
+        //		newNormalsIndex = malloc(sizeof(int) * triangleCount *
+        // 3);
         newNormalsIndex = (int *)calloc(triangleCount * 3, sizeof(int));
     if (theMesh->textureIndex != NULL)
-        //		newTextureIndex = malloc(sizeof(int) * triangleCount * 3);
+        //		newTextureIndex = malloc(sizeof(int) * triangleCount *
+        // 3);
         newTextureIndex = (int *)calloc(triangleCount * 3, sizeof(int));
 
     // 1.2 Loop through old list and write the new one
@@ -562,15 +565,19 @@ void DecomposeToTriangles(struct Mesh *theMesh) {
                 newCoords[newIndex++] = theMesh->coordIndex[i];
 
                 if (theMesh->normalsIndex != NULL) {
-                    newNormalsIndex[newIndex - 3] = theMesh->normalsIndex[first];
-                    newNormalsIndex[newIndex - 2] = theMesh->normalsIndex[i - 1];
+                    newNormalsIndex[newIndex - 3] =
+                        theMesh->normalsIndex[first];
+                    newNormalsIndex[newIndex - 2] =
+                        theMesh->normalsIndex[i - 1];
                     newNormalsIndex[newIndex - 1] = theMesh->normalsIndex[i];
                 }
 
                 // Dito for textures
                 if (theMesh->textureIndex != NULL) {
-                    newTextureIndex[newIndex - 3] = theMesh->textureIndex[first];
-                    newTextureIndex[newIndex - 2] = theMesh->textureIndex[i - 1];
+                    newTextureIndex[newIndex - 3] =
+                        theMesh->textureIndex[first];
+                    newTextureIndex[newIndex - 2] =
+                        theMesh->textureIndex[i - 1];
                     newTextureIndex[newIndex - 1] = theMesh->textureIndex[i];
                 }
             }
@@ -596,12 +603,14 @@ static void GenerateNormals(Mesh *mesh) {
         int face;
         int normalIndex;
 
-        mesh->vertexNormals = (GLfloat *)malloc(3 * sizeof(GLfloat) * mesh->vertexCount);
+        mesh->vertexNormals =
+            (GLfloat *)malloc(3 * sizeof(GLfloat) * mesh->vertexCount);
         memset(mesh->vertexNormals, 0, 3 * sizeof(GLfloat) * mesh->vertexCount);
 
         mesh->normalsCount = mesh->vertexCount;
 
-        //		mesh->normalsIndex = malloc(sizeof(GLuint) * mesh->coordCount);
+        //		mesh->normalsIndex = malloc(sizeof(GLuint) *
+        // mesh->coordCount);
         mesh->normalsIndex = (int *)calloc(mesh->coordCount, sizeof(GLuint));
         memcpy(mesh->normalsIndex, mesh->coordIndex,
                sizeof(GLuint) * mesh->coordCount);
@@ -635,13 +644,22 @@ static void GenerateNormals(Mesh *mesh) {
             float len1 = (sqrLen1 >= 1e-6) ? sqrt(sqrLen1) : 1e-3;
             float len2 = (sqrLen2 >= 1e-6) ? sqrt(sqrLen2) : 1e-3;
 
-            float influence0 = (v0x * v1x + v0y * v1y + v0z * v1z) / (len0 * len1);
-            float influence1 = -(v0x * v2x + v0y * v2y + v0z * v2z) / (len0 * len2);
-            float influence2 = (v1x * v2x + v1y * v2y + v1z * v2z) / (len1 * len2);
+            float influence0 =
+                (v0x * v1x + v0y * v1y + v0z * v1z) / (len0 * len1);
+            float influence1 =
+                -(v0x * v2x + v0y * v2y + v0z * v2z) / (len0 * len2);
+            float influence2 =
+                (v1x * v2x + v1y * v2y + v1z * v2z) / (len1 * len2);
 
-            float angle0 = (influence0 >= 1.f) ? 0 : (influence0 <= -1.f) ? PI : acos(influence0);
-            float angle1 = (influence1 >= 1.f) ? 0 : (influence1 <= -1.f) ? PI : acos(influence1);
-            float angle2 = (influence2 >= 1.f) ? 0 : (influence2 <= -1.f) ? PI : acos(influence2);
+            float angle0 = (influence0 >= 1.f)
+                               ? 0
+                               : (influence0 <= -1.f) ? PI : acos(influence0);
+            float angle1 = (influence1 >= 1.f)
+                               ? 0
+                               : (influence1 <= -1.f) ? PI : acos(influence1);
+            float angle2 = (influence2 >= 1.f)
+                               ? 0
+                               : (influence2 <= -1.f) ? PI : acos(influence2);
 
             float normalX = v1z * v0y - v1y * v0z;
             float normalY = v1x * v0z - v1z * v0x;
@@ -666,11 +684,11 @@ static void GenerateNormals(Mesh *mesh) {
 
         for (normalIndex = 0; normalIndex < mesh->normalsCount; normalIndex++) {
             GLfloat *normal = &mesh->vertexNormals[normalIndex * 3];
-            float length = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+            float length = sqrt(normal[0] * normal[0] + normal[1] * normal[1] +
+                                normal[2] * normal[2]);
             float reciprocalLength = 1.f;
 
-            if (length > 0.01f)
-                reciprocalLength = 1.f / length;
+            if (length > 0.01f) reciprocalLength = 1.f / length;
 
             normal[0] *= reciprocalLength;
             normal[1] *= reciprocalLength;
@@ -684,8 +702,7 @@ static Model *GenerateModel(Mesh *mesh) {
     // (one index list) by generating a new set of vertices/indices
     // and where new vertices have been created whenever necessary
 
-    typedef struct
-    {
+    typedef struct {
         int positionIndex;
         int normalIndex;
         int texCoordIndex;
@@ -696,7 +713,8 @@ static Model *GenerateModel(Mesh *mesh) {
 
     int indexHashMapSize = (mesh->vertexCount * hashGap + mesh->coordCount);
 
-    IndexTriplet *indexHashMap = (IndexTriplet *)malloc(sizeof(IndexTriplet) * indexHashMapSize);
+    IndexTriplet *indexHashMap =
+        (IndexTriplet *)malloc(sizeof(IndexTriplet) * indexHashMapSize);
 
     int numNewVertices = 0;
     int index;
@@ -712,7 +730,7 @@ static Model *GenerateModel(Mesh *mesh) {
     memset(indexHashMap, 0xff, sizeof(IndexTriplet) * indexHashMapSize);
 
     for (index = 0; index < mesh->coordCount; index++) {
-        IndexTriplet currentVertex = {-1, -1, -1, -1};
+        IndexTriplet currentVertex = { -1, -1, -1, -1 };
         int insertPos = 0;
         if (mesh->coordIndex)
             currentVertex.positionIndex = mesh->coordIndex[index];
@@ -732,7 +750,12 @@ static Model *GenerateModel(Mesh *mesh) {
                 currentVertex.newIndex = numNewVertices++;
                 indexHashMap[insertPos] = currentVertex;
                 break;
-            } else if (indexHashMap[insertPos].positionIndex == currentVertex.positionIndex && indexHashMap[insertPos].normalIndex == currentVertex.normalIndex && indexHashMap[insertPos].texCoordIndex == currentVertex.texCoordIndex) {
+            } else if (indexHashMap[insertPos].positionIndex ==
+                           currentVertex.positionIndex &&
+                       indexHashMap[insertPos].normalIndex ==
+                           currentVertex.normalIndex &&
+                       indexHashMap[insertPos].texCoordIndex ==
+                           currentVertex.texCoordIndex) {
                 currentVertex.newIndex = indexHashMap[insertPos].newIndex;
                 break;
             } else
@@ -743,11 +766,16 @@ static Model *GenerateModel(Mesh *mesh) {
     }
 
     if (mesh->vertices)
-        model->vertexArray = (GLfloat *)malloc(sizeof(GLfloat) * 3 * numNewVertices);
+        model->vertexArray =
+            (GLfloat *)malloc(sizeof(GLfloat) * 3 * numNewVertices);
     if (mesh->vertexNormals)
-        model->normalArray = (GLfloat *)malloc(sizeof(GLfloat) * 3 * numNewVertices);
+        model->normalArray =
+            (GLfloat *)malloc(sizeof(GLfloat) * 3 * numNewVertices);
+    else
+        model->normalArray = NULL;
     if (mesh->textureCoords)
-        model->texCoordArray = (GLfloat *)malloc(sizeof(GLfloat) * 2 * numNewVertices);
+        model->texCoordArray =
+            (GLfloat *)malloc(sizeof(GLfloat) * 2 * numNewVertices);
 
     model->numVertices = numNewVertices;
 
@@ -759,13 +787,19 @@ static Model *GenerateModel(Mesh *mesh) {
                        3 * sizeof(GLfloat));
 
             if (mesh->vertexNormals)
-                memcpy(&model->normalArray[3 * indexHashMap[index].newIndex],
-                       &mesh->vertexNormals[3 * indexHashMap[index].normalIndex],
-                       3 * sizeof(GLfloat));
+                memcpy(
+                    &model->normalArray[3 * indexHashMap[index].newIndex],
+                    &mesh->vertexNormals[3 * indexHashMap[index].normalIndex],
+                    3 * sizeof(GLfloat));
 
             if (mesh->textureCoords) {
-                model->texCoordArray[2 * indexHashMap[index].newIndex + 0] = mesh->textureCoords[2 * indexHashMap[index].texCoordIndex + 0];
-                model->texCoordArray[2 * indexHashMap[index].newIndex + 1] = 1 - mesh->textureCoords[2 * indexHashMap[index].texCoordIndex + 1];
+                model->texCoordArray[2 * indexHashMap[index].newIndex + 0] =
+                    mesh->textureCoords[2 * indexHashMap[index].texCoordIndex +
+                                        0];
+                model->texCoordArray[2 * indexHashMap[index].newIndex + 1] =
+                    1 -
+                    mesh->textureCoords[2 * indexHashMap[index].texCoordIndex +
+                                        1];
             }
         }
     }
@@ -786,15 +820,18 @@ void PrintMesh(Mesh *mesh, char all) {
     printf("vertices: (%d)\n", mesh->vertexCount);
     if (all)
         for (i = 0; i < mesh->vertexCount * 3; i += 3)
-            printf(" %d %f %f %f\n", i / 3, mesh->vertices[i], mesh->vertices[i + 1], mesh->vertices[i + 2]);
+            printf(" %d %f %f %f\n", i / 3, mesh->vertices[i],
+                   mesh->vertices[i + 1], mesh->vertices[i + 2]);
     printf("vertexNormals: (%d)\n", mesh->normalsCount);
     if (all)
         for (i = 0; i < mesh->normalsCount * 3; i += 3)
-            printf(" %d %f %f %f\n", i / 3, mesh->vertexNormals[i], mesh->vertexNormals[i + 1], mesh->vertexNormals[i + 2]);
+            printf(" %d %f %f %f\n", i / 3, mesh->vertexNormals[i],
+                   mesh->vertexNormals[i + 1], mesh->vertexNormals[i + 2]);
     printf("textureCoords: (%d)\n", mesh->texCount);
     if (all)
         for (i = 0; i < mesh->texCount * 2; i += 2)
-            printf(" %d %f %f\n", i / 2, mesh->textureCoords[i], mesh->textureCoords[i + 1]);
+            printf(" %d %f %f\n", i / 2, mesh->textureCoords[i],
+                   mesh->textureCoords[i + 1]);
     printf("coordsIndex: (%d)\n", mesh->coordCount);
     if (all)
         for (i = 0; i < mesh->coordCount; i++)
@@ -818,9 +855,10 @@ Mesh **SplitToMeshes(Mesh *m) {
     int *mapc = (int *)malloc(m->vertexCount * sizeof(int));
     int *mapt = (int *)malloc(m->texCount * sizeof(int));
     int *mapn = (int *)malloc(m->normalsCount * sizeof(int));
-    int newCoordIndexCount = 0;    // Number of coords put in mm[i]->coordIndex
-    int newNormalsIndexCount = 0;  // Number of normals put in mm[i]->normalsIndex
-    int newTexIndexCount = 0;      // Number of coords put in mm[i]->textureIndex
+    int newCoordIndexCount = 0;  // Number of coords put in mm[i]->coordIndex
+    int newNormalsIndexCount =
+        0;                     // Number of normals put in mm[i]->normalsIndex
+    int newTexIndexCount = 0;  // Number of coords put in mm[i]->textureIndex
 
     Mesh **mm = (Mesh **)calloc(sizeof(Mesh *), m->groupCount + 2);
     int j = 0;
@@ -828,14 +866,18 @@ Mesh **SplitToMeshes(Mesh *m) {
     for (i = 0; i < m->groupCount + 1; i++) {
         printf("Building mesh number %d\n", i);  // sleep(1);
         mm[i] = (Mesh *)malloc(sizeof(Mesh));
-        // allocate c1, t1, n1, mapc, mapt, mapn, coordIndex, textureIndex, normalsIndex
-        mm[i]->vertices = (GLfloat *)malloc(m->vertexCount * sizeof(GLfloat) * 3);
+        // allocate c1, t1, n1, mapc, mapt, mapn, coordIndex, textureIndex,
+        // normalsIndex
+        mm[i]->vertices =
+            (GLfloat *)malloc(m->vertexCount * sizeof(GLfloat) * 3);
         if (m->normalsCount > 0)
-            mm[i]->vertexNormals = (GLfloat *)malloc(m->normalsCount * sizeof(GLfloat) * 3);
+            mm[i]->vertexNormals =
+                (GLfloat *)malloc(m->normalsCount * sizeof(GLfloat) * 3);
         else
             mm[i]->vertexNormals = NULL;
         if (m->texCount > 0)
-            mm[i]->textureCoords = (GLfloat *)malloc(m->texCount * sizeof(GLfloat) * 2);
+            mm[i]->textureCoords =
+                (GLfloat *)malloc(m->texCount * sizeof(GLfloat) * 2);
         else
             mm[i]->textureCoords = NULL;
         mm[i]->coordIndex = (int *)malloc(m->coordCount * sizeof(int));
@@ -851,23 +893,24 @@ Mesh **SplitToMeshes(Mesh *m) {
 
         printf("Filling maps with %d\n", m->vertexCount);
         // Fill mapc, mapt, mapn with -1 (illegal index)
-        for (ii = 0; ii < m->vertexCount; ii++)
-            mapc[ii] = -1;
-        for (ii = 0; ii < m->texCount; ii++)
-            mapt[ii] = -1;
-        for (ii = 0; ii < m->normalsCount; ii++)
-            mapn[ii] = -1;
+        for (ii = 0; ii < m->vertexCount; ii++) mapc[ii] = -1;
+        for (ii = 0; ii < m->texCount; ii++) mapt[ii] = -1;
+        for (ii = 0; ii < m->normalsCount; ii++) mapn[ii] = -1;
 
-        // OBSOLETE! Use mm[i]->normalsCount etc instead! No, that is data, not indices!
-        // These should all equal to mm[i]->coordCount in the end but must be separate in the mean time!
-        //		int newCoordIndexCount = 0; // Number of coords put in mm[i]->coordIndex
-        //		int newNormalsIndexCount = 0; // Number of normals put in mm[i]->normalsIndex
-        //		int newTexIndexCount = 0; // Number of coords put in mm[i]->textureIndex
+        // OBSOLETE! Use mm[i]->normalsCount etc instead! No, that is data, not
+        // indices! These should all equal to mm[i]->coordCount in the end but
+        // must be separate in the mean time!
+        //		int newCoordIndexCount = 0; // Number of coords put in
+        // mm[i]->coordIndex 		int newNormalsIndexCount = 0; // Number
+        // of normals
+        // put in mm[i]->normalsIndex 		int newTexIndexCount = 0; //
+        // Number of coords put in mm[i]->textureIndex
 
         //		if (m->coordStarts == NULL)
         //			printf("Oh shit!\n");
-        //		printf("Walking the dog from %d to %d\n", j, m->groupCount);
-        //		printf("Walking the dog up to %d\n", m->coordStarts[i+1]);
+        //		printf("Walking the dog from %d to %d\n", j,
+        // m->groupCount); 		printf("Walking the dog up to %d\n",
+        // m->coordStarts[i+1]);
         for (; j < m->coordStarts[i + 1]; j++) {
             //			printf("Keep walking at %d\n", j);
             // mapc[index] is new position for vertices[index]
@@ -881,7 +924,8 @@ Mesh **SplitToMeshes(Mesh *m) {
                 // is it mapped?
                 if (mapc[ix] == -1)  // No mapping
                 {
-                    //					printf("Upmapped at %d\n", j);
+                    //					printf("Upmapped at
+                    //%d\n", j);
                     // If not, copy data!
                     mapc[ix] = mm[i]->vertexCount++;
                     mm[i]->vertices[mapc[ix] * 3] = m->vertices[ix * 3];
@@ -904,11 +948,14 @@ Mesh **SplitToMeshes(Mesh *m) {
                     // is it mapped?
                     if (mapt[ix] == -1)  // No mapping
                     {
-                        //						printf("Upmapped T at %d\n", j);
+                        //						printf("Upmapped
+                        //T at %d\n", j);
                         // If not, copy data!
                         mapt[ix] = mm[i]->texCount++;
-                        mm[i]->textureCoords[mapt[ix] * 2] = m->textureCoords[ix * 2];
-                        mm[i]->textureCoords[mapt[ix] * 2 + 1] = m->textureCoords[ix * 2 + 1];
+                        mm[i]->textureCoords[mapt[ix] * 2] =
+                            m->textureCoords[ix * 2];
+                        mm[i]->textureCoords[mapt[ix] * 2 + 1] =
+                            m->textureCoords[ix * 2 + 1];
                     }
                     // Save index to new coordIndex!
                     mm[i]->textureIndex[newTexIndexCount++] = mapt[ix];
@@ -922,19 +969,24 @@ Mesh **SplitToMeshes(Mesh *m) {
                 ix = m->normalsIndex[j];  // get next index
                 if (ix == -1)             // Is it a separator?
                 {
-                    //					printf("N separator at %d\n", j); sleep(1);
+                    //					printf("N separator at %d\n",
+                    //j); sleep(1);
                     // Save -1, which is a separator
                     mm[i]->normalsIndex[newNormalsIndexCount++] = ix;
                 } else {
                     // is it mapped?
                     if (mapn[ix] == -1)  // No mapping
                     {
-                        //						printf("Upmapped N at %d\n", j);
+                        //						printf("Upmapped
+                        //N at %d\n", j);
                         // If not, copy data!
                         mapn[ix] = mm[i]->normalsCount++;
-                        mm[i]->vertexNormals[mapn[ix] * 3] = m->vertexNormals[ix * 3];
-                        mm[i]->vertexNormals[mapn[ix] * 3 + 1] = m->vertexNormals[ix * 3 + 1];
-                        mm[i]->vertexNormals[mapn[ix] * 3 + 2] = m->vertexNormals[ix * 3 + 2];
+                        mm[i]->vertexNormals[mapn[ix] * 3] =
+                            m->vertexNormals[ix * 3];
+                        mm[i]->vertexNormals[mapn[ix] * 3 + 1] =
+                            m->vertexNormals[ix * 3 + 1];
+                        mm[i]->vertexNormals[mapn[ix] * 3 + 2] =
+                            m->vertexNormals[ix * 3 + 2];
                     }
                     // Save index to new coordIndex!
                     mm[i]->normalsIndex[newNormalsIndexCount++] = mapn[ix];
@@ -947,7 +999,8 @@ Mesh **SplitToMeshes(Mesh *m) {
         //		if (newNormalsIndexCount != newCoordIndexCount)
         //			printf("Not same!\n");
         mm[i]->coordCount = newCoordIndexCount;
-        printf("Part %d with %d v, %d t, %d n!\n", i, mm[i]->vertexCount++, mm[i]->texCount, mm[i]->normalsCount++);
+        printf("Part %d with %d v, %d t, %d n!\n", i, mm[i]->vertexCount++,
+               mm[i]->texCount, mm[i]->normalsCount++);
         printf("And %d coords!\n", mm[i]->coordCount);
     }
     return mm;
@@ -964,18 +1017,12 @@ Model *LoadModel(const char *name) {
     model = GenerateModel(mesh);
 
     // Free the mesh!
-    if (mesh->vertices != NULL)
-        free(mesh->vertices);
-    if (mesh->vertexNormals != NULL)
-        free(mesh->vertexNormals);
-    if (mesh->textureCoords != NULL)
-        free(mesh->textureCoords);
-    if (mesh->coordIndex != NULL)
-        free(mesh->coordIndex);
-    if (mesh->normalsIndex != NULL)
-        free(mesh->normalsIndex);
-    if (mesh->textureIndex != NULL)
-        free(mesh->textureIndex);
+    if (mesh->vertices != NULL) free(mesh->vertices);
+    if (mesh->vertexNormals != NULL) free(mesh->vertexNormals);
+    if (mesh->textureCoords != NULL) free(mesh->textureCoords);
+    if (mesh->coordIndex != NULL) free(mesh->coordIndex);
+    if (mesh->normalsIndex != NULL) free(mesh->normalsIndex);
+    if (mesh->textureIndex != NULL) free(mesh->textureIndex);
     free(mesh);
 
     return model;
@@ -983,7 +1030,8 @@ Model *LoadModel(const char *name) {
 
 void CenterModel(Model *m) {
     int i;
-    float maxx = -1e10, maxy = -1e10, maxz = -1e10, minx = 1e10, miny = 1e10, minz = 1e10;
+    float maxx = -1e10, maxy = -1e10, maxz = -1e10, minx = 1e10, miny = 1e10,
+          minz = 1e10;
 
     for (i = 0; i < m->numVertices; i++) {
         if (m->vertexArray[3 * i] < minx) minx = m->vertexArray[3 * i];
@@ -1018,10 +1066,14 @@ void ReportRerror(const char *caller, const char *name) {
     static unsigned int draw_error_counter = 0;
     // Report error - but not more than NUM_DRAWMODEL_ERROR
     if (draw_error_counter < NUM_DRAWMODEL_ERROR) {
-        fprintf(stderr, "%s warning: '%s' not found in shader!\n", caller, name);
+        fprintf(stderr, "%s warning: '%s' not found in shader!\n", caller,
+                name);
         draw_error_counter++;
     } else if (draw_error_counter == NUM_DRAWMODEL_ERROR) {
-        fprintf(stderr, "%s: Number of error bigger than %i. No more vill be printed.\n", caller, NUM_DRAWMODEL_ERROR);
+        fprintf(
+            stderr,
+            "%s: Number of error bigger than %i. No more vill be printed.\n",
+            caller, NUM_DRAWMODEL_ERROR);
         draw_error_counter++;
     }
 }
@@ -1032,7 +1084,9 @@ void ReportRerror(const char *caller, const char *name) {
 // and to get attribute locations. This is clearly not optimal, but the
 // goal is stability.
 
-void DrawModel(Model *m, GLuint program, const char *vertexVariableName, const char *normalVariableName, const char *texCoordVariableName) {
+void DrawModel(Model *m, GLuint program, const char *vertexVariableName,
+               const char *normalVariableName,
+               const char *texCoordVariableName) {
     if (m != NULL) {
         GLint loc;
 
@@ -1071,7 +1125,10 @@ void DrawModel(Model *m, GLuint program, const char *vertexVariableName, const c
     }
 }
 
-void DrawWireframeModel(Model *m, GLuint program, const char *vertexVariableName, const char *normalVariableName, const char *texCoordVariableName) {
+void DrawWireframeModel(Model *m, GLuint program,
+                        const char *vertexVariableName,
+                        const char *normalVariableName,
+                        const char *texCoordVariableName) {
     if (m != NULL) {
         GLint loc;
 
@@ -1119,33 +1176,43 @@ void ReloadModelData(Model *m) {
 
     // VBO for vertex data
     glBindBuffer(GL_ARRAY_BUFFER, m->vb);
-    glBufferData(GL_ARRAY_BUFFER, m->numVertices * 3 * sizeof(GLfloat), m->vertexArray, GL_STATIC_DRAW);
-    //glVertexAttribPointer(glGetAttribLocation(program, vertexVariableName), 3, GL_FLOAT, GL_FALSE, 0, 0);
-    //glEnableVertexAttribArray(glGetAttribLocation(program, vertexVariableName));
+    glBufferData(GL_ARRAY_BUFFER, m->numVertices * 3 * sizeof(GLfloat),
+                 m->vertexArray, GL_STATIC_DRAW);
+    // glVertexAttribPointer(glGetAttribLocation(program, vertexVariableName),
+    // 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // glEnableVertexAttribArray(glGetAttribLocation(program,
+    // vertexVariableName));
 
     // VBO for normal data
     glBindBuffer(GL_ARRAY_BUFFER, m->nb);
-    glBufferData(GL_ARRAY_BUFFER, m->numVertices * 3 * sizeof(GLfloat), m->normalArray, GL_STATIC_DRAW);
-    //glVertexAttribPointer(glGetAttribLocation(program, normalVariableName), 3, GL_FLOAT, GL_FALSE, 0, 0);
-    //glEnableVertexAttribArray(glGetAttribLocation(program, normalVariableName));
+    glBufferData(GL_ARRAY_BUFFER, m->numVertices * 3 * sizeof(GLfloat),
+                 m->normalArray, GL_STATIC_DRAW);
+    // glVertexAttribPointer(glGetAttribLocation(program, normalVariableName),
+    // 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // glEnableVertexAttribArray(glGetAttribLocation(program,
+    // normalVariableName));
 
     // VBO for texture coordinate data NEW for 5b
     if (m->texCoordArray != NULL) {
         glBindBuffer(GL_ARRAY_BUFFER, m->tb);
-        glBufferData(GL_ARRAY_BUFFER, m->numVertices * 2 * sizeof(GLfloat), m->texCoordArray, GL_STATIC_DRAW);
-        //glVertexAttribPointer(glGetAttribLocation(program, texCoordVariableName), 2, GL_FLOAT, GL_FALSE, 0, 0);
-        //glEnableVertexAttribArray(glGetAttribLocation(program, texCoordVariableName));
+        glBufferData(GL_ARRAY_BUFFER, m->numVertices * 2 * sizeof(GLfloat),
+                     m->texCoordArray, GL_STATIC_DRAW);
+        // glVertexAttribPointer(glGetAttribLocation(program,
+        // texCoordVariableName), 2, GL_FLOAT, GL_FALSE, 0, 0);
+        // glEnableVertexAttribArray(glGetAttribLocation(program,
+        // texCoordVariableName));
     }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ib);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices * sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices * sizeof(GLuint),
+                 m->indexArray, GL_STATIC_DRAW);
 }
 
 Model *LoadModelPlus(const char *name /*,
-			GLuint program,
-			char* vertexVariableName,
-			char* normalVariableName,
-			char* texCoordVariableName*/
+                        GLuint program,
+                        char* vertexVariableName,
+                        char* normalVariableName,
+                        char* texCoordVariableName*/
 ) {
     Model *m;
 
@@ -1155,8 +1222,7 @@ Model *LoadModelPlus(const char *name /*,
     glGenBuffers(1, &m->vb);
     glGenBuffers(1, &m->ib);
     glGenBuffers(1, &m->nb);
-    if (m->texCoordArray != NULL)
-        glGenBuffers(1, &m->tb);
+    if (m->texCoordArray != NULL) glGenBuffers(1, &m->tb);
 
     ReloadModelData(m);
 
@@ -1164,14 +1230,9 @@ Model *LoadModelPlus(const char *name /*,
 }
 
 // Loader for inline data to Model (almost same as LoadModelPlus)
-Model *LoadDataToModel(
-    GLfloat *vertices,
-    GLfloat *normals,
-    GLfloat *texCoords,
-    GLfloat *colors,
-    GLuint *indices,
-    int numVert,
-    int numInd) {
+Model *LoadDataToModel(GLfloat *vertices, GLfloat *normals, GLfloat *texCoords,
+                       GLfloat *colors, GLuint *indices, int numVert,
+                       int numInd) {
     Model *m = (Model *)malloc(sizeof(Model));
     memset(m, 0, sizeof(Model));
 
@@ -1186,8 +1247,7 @@ Model *LoadDataToModel(
     glGenBuffers(1, &m->vb);
     glGenBuffers(1, &m->ib);
     glGenBuffers(1, &m->nb);
-    if (m->texCoordArray != NULL)
-        glGenBuffers(1, &m->tb);
+    if (m->texCoordArray != NULL) glGenBuffers(1, &m->tb);
 
     ReloadModelData(m);
 
@@ -1197,18 +1257,15 @@ Model *LoadDataToModel(
 // Cleanup function, not tested!
 void DisposeModel(Model *m) {
     if (m != NULL) {
-        if (m->vertexArray != NULL)
-            free(m->vertexArray);
-        if (m->normalArray != NULL)
-            free(m->normalArray);
-        if (m->texCoordArray != NULL)
-            free(m->texCoordArray);
+        if (m->vertexArray != NULL) free(m->vertexArray);
+        if (m->normalArray != NULL) free(m->normalArray);
+        if (m->texCoordArray != NULL) free(m->texCoordArray);
         if (m->colorArray != NULL)  // obsolete?
             free(m->colorArray);
-        if (m->indexArray != NULL)
-            free(m->indexArray);
+        if (m->indexArray != NULL) free(m->indexArray);
 
-        // Lazy error checking heter since "glDeleteBuffers silently ignores 0's and names that do not correspond to existing buffer objects."
+        // Lazy error checking heter since "glDeleteBuffers silently ignores 0's
+        // and names that do not correspond to existing buffer objects."
         glDeleteBuffers(1, &m->vb);
         glDeleteBuffers(1, &m->ib);
         glDeleteBuffers(1, &m->nb);
