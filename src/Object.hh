@@ -6,17 +6,18 @@
 class Object {
 
     public:
-    Object();
+    Object(bool depthTest = true);
     virtual ~Object() = default;
 
-    void setProgram(GLuint program);
+    void setShader(GLuint shader);
     void addTexture(GLuint texture);
     void draw(mat4 cam);
 
     protected:
+    bool depthTest;
     Model model;
     mat4 toWorld;
-    GLuint program;
+    GLuint shader;
     std::vector<GLuint> textures;
 
 };
