@@ -1,6 +1,5 @@
 {
-  "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
-  "cquery.index.extraClangArguments": [
+  "ccls.clang.extraArgs": [
     "-I./common/",
     "-I./common/Linux/",
     "-lXt",
