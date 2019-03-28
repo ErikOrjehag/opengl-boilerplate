@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "Camera.hh"
 #include "VectorUtils3.h"
 #include "loadobj.h"
 
@@ -12,7 +13,7 @@ class Object {
 
     void setShader(GLuint shader);
     void addTexture(GLuint texture);
-    void draw(mat4 cam);
+    void draw(const Camera &cam);
 
     void loadModel(const std::string &modelName);
 
