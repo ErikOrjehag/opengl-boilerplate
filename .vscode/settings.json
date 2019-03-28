@@ -11,7 +11,8 @@
     "-Weffc++",
     "-pedantic",
     "-Wsuggest-attribute=const",
-    "-std=c++17"
+    "-std=c++17",
+    "-DGL_GLEXT_PROTOTYPES"
   ],
   "files.associations": {
     "algorithm": "cpp",
