@@ -37,21 +37,18 @@ void init() {
     printError("ERROR: SETUP PROGRAMS");
     
     /* SETUP TEXTURES */
-    GLuint grass, dirt;
-    LoadTGATextureSimple("assets/textures/grass.tga", &grass);
-    LoadTGATextureSimple("assets/textures/dirt.tga", &dirt);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, grass);
-    
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, dirt);
+    GLuint grassTex, dirtTex, skyTex;
+    LoadTGATextureSimple("assets/textures/grass.tga", &grassTex);
+    LoadTGATextureSimple("assets/textures/dirt.tga", &dirtTex);
+    LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
     
     printError("ERROR: SETUP TEXTURES");
 
     /* LOAD MODELS */
     terrain.generate("assets/textures/terrain.tga");
     terrain.setProgram(terrain_program);
+    terrain.addTexture(grassTex);
+    terrain.addTexture(dirtTex);
     
     /* INIT GL */
     glClearColor(0.2, 0.2, 0.5, 0);
