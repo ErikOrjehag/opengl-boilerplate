@@ -17,23 +17,17 @@ OUT = $(OUT_DIR)$(OUT_FILENAME)
 
 COMMON_OFILES = $(BUILD_DIR)GL_utilities.o $(BUILD_DIR)VectorUtils3.o $(BUILD_DIR)loadobj.o $(BUILD_DIR)LoadTGA.o $(BUILD_DIR)MicroGlut.o
 
+all: $(BUILD_DIR)main.o $(BUILD_DIR)Terrain.o $(BUILD_DIR)Object.o $(COMMON_OFILES)
+	g++ $(CCFLAGS) $? -o $(OUT) $(LIB_FLAGS)
 
-OBJDIR = build
-OBJ = $(addprefix $(OBJDIR)/, $(patsubst %.cc, %.o, $(wildcard *.cc)))
+$(BUILD_DIR)main.o: $(SRC)main.cc
+	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SRC)main.cc -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)main.o
 
-$(OBJDIR):
-	mkdir $(OBJDIR)
+$(BUILD_DIR)Terrain.o: $(SRC)Terrain.cc $(SRC)Terrain.hh
+	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SRC)Terrain.cc -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $@
 
-all: $(BUILD_DIR)main.o $(COMMON_OFILES)
-	g++ $(CCFLAGS) $(BUILD_DIR)main.o $(COMMON_OFILES)  -o $(OUT) $(LIB_FLAGS)
-
-
-
-$(BUILD_DIR)main.o: $(SOURCE_FILES_PADDED)
-	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SOURCE_FILES_PADDED) -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)main.o
-
-
-
+$(BUILD_DIR)Object.o: $(SRC)Object.cc $(SRC)Object.hh
+	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SRC)Object.cc -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $@
 
 $(BUILD_DIR)GL_utilities.o: $(COMMON_DIR)GL_utilities.c $(COMMON_DIR)GL_utilities.h
 	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(COMMON_DIR)GL_utilities.c -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)GL_utilities.o
