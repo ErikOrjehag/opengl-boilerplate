@@ -4,7 +4,7 @@ Camera::Camera() {
     camMatrix = MultMat4(
         Rx(yrot), MultMat4(Ry(xrot), T(-camPos.x, -camPos.y, -camPos.z)));
 
-    projectionMatrix = frustum(-0.2, 0.2, -0.2, 0.2, 0.2, 50.0);
+    projectionMatrix = frustum(-0.2, 0.2, -0.2, 0.2, 0.2, 1000.0);
 }
 
 void Camera::increase() { camSpeed += SPEED_DELTA; }
