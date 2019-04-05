@@ -1,5 +1,6 @@
 
 #include <algorithm>
+#include <memory>
 
 #include "GL_utilities.h"
 #include "MicroGlut.h"
@@ -11,10 +12,10 @@
 #include "Terrain.hh"
 #include "Water.hh"
 
-Terrain terrain;
-Skybox sky;
-Water water;
-Camera cam {};
+std::unique_ptr<Terrain> terrain;
+std::unique_ptr<Skybox> sky;
+std::unique_ptr<Water> water;
+std::unique_ptr<Camera> cam;
 
 mat4 camMatrix;
 
@@ -31,12 +32,14 @@ void init() {
     // glEnable(GL_CULL_FACE);
     printError("GL inits");
 
+    cam = std::make_unique<Camera>();
+
     /* SETUP PROGRAMS */
     GLuint terrainShader = loadShaders("assets/shaders/terrain.vert",
                                        "assets/shaders/terrain.frag");
     glUseProgram(terrainShader);
     glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1,
-                       GL_TRUE, cam.projectionMatrix.m);
+                       GL_TRUE, cam->projectionMatrix.m);
     glUniform1i(glGetUniformLocation(terrainShader, "grass"), 0);
     glUniform1i(glGetUniformLocation(terrainShader, "dirt"), 1);
 
@@ -44,14 +47,16 @@ void init() {
         loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
     glUseProgram(skyShader);
     glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1,
-                       GL_TRUE, cam.projectionMatrix.m);
+                       GL_TRUE, cam->projectionMatrix.m);
     glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
 
     GLuint waterShader =
         loadShaders("assets/shaders/water.vert", "assets/shaders/water.frag");
     glUseProgram(waterShader);
     glUniformMatrix4fv(glGetUniformLocation(waterShader, "projMatrix"), 1,
-                       GL_TRUE, cam.projectionMatrix.m);
+                       GL_TRUE, cam->projectionMatrix.m);
+    glUniform1i(glGetUniformLocation(waterShader, "reflection"), 0);
+    glUniform1i(glGetUniformLocation(waterShader, "refraction"), 1);
 
     printError("ERROR: SETUP PROGRAMS");
 
@@ -64,25 +69,29 @@ void init() {
     printError("ERROR: SETUP TEXTURES");
 
     /* LOAD MODELS */
-    terrain.generate("assets/textures/terrain.tga");
-    terrain.setShader(terrainShader);
-    terrain.addTexture(grassTex);
-    terrain.addTexture(dirtTex);
+    terrain = std::make_unique<Terrain>();
+    terrain->generate("assets/textures/terrain.tga");
+    terrain->setShader(terrainShader);
+    terrain->addTexture(grassTex);
+    terrain->addTexture(dirtTex);
 
-    sky.setShader(skyShader);
-    sky.loadModel("assets/models/skybox.obj");
-    sky.addTexture(skyTex);
+    sky = std::make_unique<Skybox>();
+    sky->setShader(skyShader);
+    sky->loadModel("assets/models/skybox.obj");
+    sky->addTexture(skyTex);
 
-    water.generate(90.0, 2.0, 100.0, 120.0, 120.0);
-    water.setShader(waterShader);
+    water = std::make_unique<Water>();
+    water->generate(90.0, 2.0, 100.0, 120.0, 120.0);
+    water->setShader(waterShader);
+    // add reflection and refraction textures
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    sky.draw(cam);
-    water.draw(cam);
-    terrain.draw(cam, vec4(0, -1, 0, 3));
+    sky->draw(*cam);
+    water->draw(*cam);
+    terrain->draw(*cam, vec4(0, -1, 0, 3));
 
     glutSwapBuffers();
 }
@@ -91,22 +100,22 @@ void updateCam() {
     float mx = 0;
     float mz = 0;
 
-    if (glutKeyIsDown('p')) cam.increase();
-    if (glutKeyIsDown('o')) cam.decrease();
+    if (glutKeyIsDown('p')) cam->increase();
+    if (glutKeyIsDown('o')) cam->decrease();
     if (glutKeyIsDown('a')) mx -= 1;
     if (glutKeyIsDown('d')) mx += 1;
     if (glutKeyIsDown('s')) mz += 1;
     if (glutKeyIsDown('w')) mz -= 1;
 
-    if (glutKeyIsDown('r')) cam.up();
-    if (glutKeyIsDown('e')) cam.down();
+    if (glutKeyIsDown('r')) cam->up();
+    if (glutKeyIsDown('e')) cam->down();
 
-    cam.updatePos(mx, mz);
+    cam->updatePos(mx, mz);
 
     // float h = terrain.height(cam.x(), cam.z());
     // cam.y() = h + 1.86;
 
-    cam.updateCamMatrix();
+    cam->updateCamMatrix();
 }
 
 void timer(int i) {
@@ -121,8 +130,8 @@ void mouseMove(int x, int y) {
     if (buttonState == GLUT_DOWN) {
         float dx = (x - mousex) / 200.f;
         float dy = (y - mousey) / 200.f;
-        cam.rotateX(dx);
-        cam.rotateY(dy);
+        cam->rotateX(dx);
+        cam->rotateY(dy);
     }
 
     mousex = x;
