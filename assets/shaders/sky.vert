@@ -11,7 +11,7 @@ uniform mat4 modelToWorld;
 void main(void)
 {
 	// modelToWorld must be identity :D
-	gl_Position = modelToWorld * projection * mat4(mat3(worldToView)) * vec4(inPosition + vec3(0, -0.07, 0), 1.0);
+	gl_Position = projection * mat4(mat3(worldToView)) * modelToWorld * vec4(inPosition + vec3(0, -0.07, 0), 1.0);
 
 	fragTexCoord = inTexCoord;
 }

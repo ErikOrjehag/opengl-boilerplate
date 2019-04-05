@@ -9,9 +9,11 @@
 #include "Camera.hh"
 #include "Skybox.hh"
 #include "Terrain.hh"
+#include "Water.hh"
 
 Terrain terrain;
 Skybox sky;
+Water water;
 Camera cam {};
 
 mat4 camMatrix;
@@ -22,9 +24,11 @@ int buttonState = GLUT_UP;
 
 void init() {
     /* INIT GL */
-    glClearColor(0.2, 0.2, 0.5, 0);
+    glClearColor(0.2, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
+    glEnable(GL_CLIP_DISTANCE0);
+    // glEnable(GL_CULL_FACE);
     printError("GL inits");
 
     /* SETUP PROGRAMS */
@@ -42,6 +46,12 @@ void init() {
     glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1,
                        GL_TRUE, cam.projectionMatrix.m);
     glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
+
+    GLuint waterShader =
+        loadShaders("assets/shaders/water.vert", "assets/shaders/water.frag");
+    glUseProgram(waterShader);
+    glUniformMatrix4fv(glGetUniformLocation(waterShader, "projMatrix"), 1,
+                       GL_TRUE, cam.projectionMatrix.m);
 
     printError("ERROR: SETUP PROGRAMS");
 
@@ -62,13 +72,17 @@ void init() {
     sky.setShader(skyShader);
     sky.loadModel("assets/models/skybox.obj");
     sky.addTexture(skyTex);
+
+    water.generate(90.0, 2.0, 100.0, 120.0, 120.0);
+    water.setShader(waterShader);
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     sky.draw(cam);
-    terrain.draw(cam);
+    water.draw(cam);
+    terrain.draw(cam, vec4(0, -1, 0, 3));
 
     glutSwapBuffers();
 }
@@ -89,8 +103,8 @@ void updateCam() {
 
     cam.updatePos(mx, mz);
 
-    float h = terrain.height(cam.x(), cam.z());
-    cam.y() = h + 1.86;
+    // float h = terrain.height(cam.x(), cam.z());
+    // cam.y() = h + 1.86;
 
     cam.updateCamMatrix();
 }

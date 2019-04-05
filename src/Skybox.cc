@@ -1,3 +1,7 @@
 #include "Skybox.hh"
 
-Skybox::Skybox() : Object(false) { hasNormals = false; }
+Skybox::Skybox() : Object() {
+    hasNormals = false;
+    depthTest = false;
+    cullFace = false;
+}
