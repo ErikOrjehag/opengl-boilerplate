@@ -11,11 +11,19 @@
 #include "Skybox.hh"
 #include "Terrain.hh"
 #include "Water.hh"
+#include "FrameBuffer.hh"
+
+const int SCREEN_WIDTH = 1500;
+const int SCREEN_HEIGHT = 1000;
+
+const vec4 waterPlane(0, -1, 0, 2);
 
 std::unique_ptr<Terrain> terrain;
 std::unique_ptr<Skybox> sky;
 std::unique_ptr<Water> water;
 std::unique_ptr<Camera> cam;
+std::unique_ptr<FrameBuffer> reflectionFBO;
+std::unique_ptr<FrameBuffer> refractionFBO;
 
 mat4 camMatrix;
 
@@ -23,16 +31,26 @@ int mousex;
 int mousey;
 int buttonState = GLUT_UP;
 
+void bindDefaultFramebuffer() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
 void init() {
     /* INIT GL */
     glClearColor(0.2, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glEnable(GL_CLIP_DISTANCE0);
-    // glEnable(GL_CULL_FACE);
     printError("GL inits");
 
+    /* CREATE CAMERA */
     cam = std::make_unique<Camera>();
+
+    /* SETUP FRAME BUFFERS */
+    reflectionFBO = std::make_unique<FrameBuffer>(320, 180, false);
+    refractionFBO = std::make_unique<FrameBuffer>(1280, 720, true);
+    bindDefaultFramebuffer();
 
     /* SETUP PROGRAMS */
     GLuint terrainShader = loadShaders("assets/shaders/terrain.vert",
@@ -57,6 +75,7 @@ void init() {
                        GL_TRUE, cam->projectionMatrix.m);
     glUniform1i(glGetUniformLocation(waterShader, "reflection"), 0);
     glUniform1i(glGetUniformLocation(waterShader, "refraction"), 1);
+    glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
 
     printError("ERROR: SETUP PROGRAMS");
 
@@ -79,21 +98,35 @@ void init() {
     sky->setShader(skyShader);
     sky->loadModel("assets/models/skybox.obj");
     sky->addTexture(skyTex);
-
+    
     water = std::make_unique<Water>();
-    water->generate(90.0, 2.0, 100.0, 120.0, 120.0);
+    water->generate(90.0, waterPlane.w, 100.0, 120.0, 120.0);
     water->setShader(waterShader);
-    // add reflection and refraction textures
+    water->addTexture(reflectionFBO->texture);
+    water->addTexture(refractionFBO->texture);
+    water->addTexture(refractionFBO->depth);
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Refraction
+    refractionFBO->bind();
+    terrain->draw(*cam, waterPlane);
+
+    // Reflection
+    reflectionFBO->bind();
+    terrain->draw(*cam, waterPlane * -1);
+
+    // Scene
+    bindDefaultFramebuffer();
     sky->draw(*cam);
+    terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
-    terrain->draw(*cam, vec4(0, -1, 0, 3));
 
     glutSwapBuffers();
+
+    printError("ERROR: DRAW");
 }
 
 void updateCam() {
@@ -142,7 +175,7 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
     glutInitContextVersion(3, 2);
-    glutInitWindowSize(1000, 1500);
+    glutInitWindowSize(SCREEN_HEIGHT, SCREEN_WIDTH);
     glutCreateWindow("WAWW");
     glutDisplayFunc(display);
     init();

@@ -1,7 +1,7 @@
 #include "Object.hh"
 
 Object::Object() : toWorld { IdentityMatrix() } {
-    std::cout << "Object constructor" << std::endl;
+    
 }
 
 void Object::setShader(GLuint shader) { this->shader = shader; }

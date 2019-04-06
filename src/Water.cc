@@ -4,8 +4,6 @@
 #include "VectorUtils3.h"
 
 Water::Water() {
-    std::cout << "Water constructor" << std::endl;
-
     hasNormals = false;
     hasTexture = false;
 }
