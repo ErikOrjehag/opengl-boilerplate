@@ -11,11 +11,13 @@ uniform mat4 modelToWorld;
 
 uniform vec3 inCamera;
 
+const float tiling = 3.0;
+
 void main(void) {
 	vec4 worldPos = modelToWorld * vec4(inPosition, 1.0);
 	toCamera = inCamera - worldPos.xyz;
 	
-	// texCoord = vec2(inPosition.x/2.0 + 0.5, inPosition.z/2.0 + 0.5);
+	texCoord = vec2(inPosition.x/2.0 + 0.5, inPosition.z/2.0 + 0.5) * tiling;
 
 	clipSpace =  projection * worldToView * worldPos;
 	gl_Position = clipSpace;

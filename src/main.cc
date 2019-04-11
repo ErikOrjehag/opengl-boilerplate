@@ -80,14 +80,16 @@ void init() {
     glUniform1i(glGetUniformLocation(waterShader, "reflection"), 0);
     glUniform1i(glGetUniformLocation(waterShader, "refraction"), 1);
     glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
+    glUniform1i(glGetUniformLocation(waterShader, "dudv"), 3);
 
     printError("ERROR: SETUP PROGRAMS");
 
     /* SETUP TEXTURES */
-    GLuint grassTex, dirtTex, skyTex;
+    GLuint grassTex, dirtTex, skyTex, dudvTex;
     LoadTGATextureSimple("assets/textures/grass.tga", &grassTex);
     LoadTGATextureSimple("assets/textures/dirt.tga", &dirtTex);
     LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
+    LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
 
     printError("ERROR: SETUP TEXTURES");
 
@@ -109,6 +111,7 @@ void init() {
     water->addTexture(reflectionFBO->texture);
     water->addTexture(refractionFBO->texture);
     water->addTexture(refractionFBO->depth);
+    water->addTexture(dudvTex);
 }
 
 void display() {
