@@ -16,7 +16,7 @@
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
-const vec4 waterPlane(0, -1, 0, 3);
+const vec4 waterPlane(0, -1, 0, 5);
 
 std::unique_ptr<Terrain> terrain;
 std::unique_ptr<Skybox> sky;
@@ -38,7 +38,7 @@ void bindDefaultFramebuffer() {
 
 void init() {
     /* INIT GL */
-    glClearColor(0.2, 0, 0, 0);
+    glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glEnable(GL_CLIP_DISTANCE0);
@@ -48,8 +48,8 @@ void init() {
     cam = std::make_unique<Camera>();
 
     /* SETUP FRAME BUFFERS */
-    reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 4,
-                                                  SCREEN_WIDTH / 4, false);
+    reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 2,
+                                                  SCREEN_WIDTH / 2, false);
     refractionFBO =
         std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, true);
     bindDefaultFramebuffer();
@@ -102,7 +102,7 @@ void init() {
     sky->addTexture(skyTex);
 
     water = std::make_unique<Water>();
-    water->generate(50.0, waterPlane.w, 50.0, 20.0, 20.0);
+    water->generate(100.0, waterPlane.w, 100.0, 75.0, 75.0);
     water->setShader(waterShader);
     water->addTexture(reflectionFBO->texture);
     water->addTexture(refractionFBO->texture);
@@ -111,8 +111,6 @@ void init() {
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // bindDefaultFramebuffer();
 
     // Refraction
     refractionFBO->bind();
@@ -129,8 +127,10 @@ void display() {
     // Reflection
     reflectionFBO->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    terrain->draw(camCopy, waterPlane * -1);
+
+    // bindDefaultFramebuffer();
     sky->draw(camCopy);
+    terrain->draw(camCopy, waterPlane * -1);
 
     // Scene
     bindDefaultFramebuffer();

@@ -20,7 +20,7 @@ class Object {
 
    protected:
     bool depthTest { true };
-    bool cullFace { false };
+    bool cullFace { true };
     bool hasNormals { true };
     bool hasTexture { true };
     Model model;

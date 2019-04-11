@@ -74,7 +74,7 @@ float Terrain::texHeight(int x, int z) {
                           std::max(0, std::min<int>(tex.height - 1, z)) *
                               tex.width) *
                          (tex.bpp / 8)] /
-           20.0;
+           10.0;
 }
 
 float Terrain::height(float xx, float zz) {
