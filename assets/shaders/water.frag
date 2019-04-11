@@ -2,7 +2,9 @@
 
 out vec4 color;
 
-in vec4 clipspace;
+in vec4 clipSpace;
+in vec2 texCoord;
+in vec3 toCamera;
 
 uniform sampler2D reflection;
 uniform sampler2D refraction;
@@ -10,7 +12,9 @@ uniform sampler2D refraction;
 
 void main(void)
 {
-	vec2 ndc = (clipspace.xy/clipspace.w)/2.0 + 0.5;
+	float refractiveFactor = pow(dot(normalize(toCamera), vec3(0, 1, 0)), 3);
+
+	vec2 ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;
 
 	vec2 refractionTexCoord = ndc;
 	vec2 reflectionTexCoord = vec2(ndc.x, -ndc.y);
@@ -18,6 +22,6 @@ void main(void)
 	vec4 refractionColor = texture(refraction, refractionTexCoord);
 	vec4 reflectionColor = texture(reflection, reflectionTexCoord);
 
-	color = mix(reflectionColor, refractionColor, 0.7);
+	color = mix(reflectionColor, refractionColor, 0.5);
 
 }

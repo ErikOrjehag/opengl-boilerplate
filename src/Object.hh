@@ -15,14 +15,11 @@ class Object {
     void setShader(GLuint shader);
     void addTexture(GLuint texture);
     void draw(const Camera &cam, std::optional<vec4> plane = std::nullopt);
-
     void loadModel(const std::string &modelName);
 
    protected:
-    bool depthTest { true };
-    bool cullFace { true };
-    bool hasNormals { true };
-    bool hasTexture { true };
+    virtual void _draw(const Camera &cam);
+
     Model model;
     mat4 toWorld;
     GLuint shader;

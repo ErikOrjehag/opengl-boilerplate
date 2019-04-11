@@ -110,3 +110,7 @@ float Terrain::height(float xx, float zz) {
 
     return h;
 }
+
+void Terrain::_draw(const Camera& cam) {
+    DrawModel(&model, shader, "inPosition", "inNormal", "inTexCoord");
+}

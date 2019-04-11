@@ -13,4 +13,5 @@ class Water : public Object {
     void generate(float x, float y, float z, float width, float height);
 
    private:
+    void _draw(const Camera &cam) override;
 };

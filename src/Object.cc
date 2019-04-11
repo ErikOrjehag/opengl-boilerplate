@@ -9,18 +9,6 @@ void Object::addTexture(GLuint texture) { textures.push_back(texture); }
 void Object::draw(const Camera &cam, std::optional<vec4> plane) {
     glUseProgram(shader);
 
-    if (depthTest) {
-        glEnable(GL_DEPTH_TEST);
-    } else {
-        glDisable(GL_DEPTH_TEST);
-    }
-
-    if (cullFace) {
-        glEnable(GL_CULL_FACE);
-    } else {
-        glDisable(GL_CULL_FACE);
-    }
-
     for (size_t i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, textures[i]);
@@ -38,16 +26,13 @@ void Object::draw(const Camera &cam, std::optional<vec4> plane) {
     glUniformMatrix4fv(glGetUniformLocation(shader, "worldToView"), 1, GL_TRUE,
                        cam.camMatrix.m);
 
-    DrawModel(&model, shader, "inPosition", (hasNormals ? "inNormal" : NULL),
-              (hasTexture ? "inTexCoord" : NULL));
-
-    // std::cout << "Name: " << modelname << " hasNormals: " << hasNormals
-    //           << " hasTexture: " << hasTexture << " depthTest: " << depthTest
-    //           << std::endl;
-
-    // Be a good guy
     glEnable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
+    _draw(cam);
+}
+
+void Object::_draw(const Camera &cam) {
+    DrawModel(&model, shader, "inPosition", "inNormal", "inTexCoord");
 }
 
 void Object::loadModel(const std::string &modelName) {

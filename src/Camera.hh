@@ -34,8 +34,8 @@ class Camera {
     // Movement
     float yrot = 0;
     float xrot = M_PI * 3.f / 4.f;
-    vec3 camPos = { 1, 8, 1 };
     float camSpeed = 0.7;
+    vec3 camPos = { 1, 8, 1 };
 
     const float SPEED_DELTA = 0.01;
 };

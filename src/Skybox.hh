@@ -3,8 +3,9 @@
 #include "Object.hh"
 
 class Skybox : public Object {
-
-public:
+   public:
     Skybox();
 
+   private:
+    void _draw(const Camera &cam) override;
 };
