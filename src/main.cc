@@ -8,15 +8,15 @@
 #include "loadobj.h"
 
 #include "Camera.hh"
+#include "FrameBuffer.hh"
 #include "Skybox.hh"
 #include "Terrain.hh"
 #include "Water.hh"
-#include "FrameBuffer.hh"
 
-const int SCREEN_WIDTH = 1500;
-const int SCREEN_HEIGHT = 1000;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 
-const vec4 waterPlane(0, -1, 0, 2);
+const vec4 waterPlane(0, -1, 0, 3);
 
 std::unique_ptr<Terrain> terrain;
 std::unique_ptr<Skybox> sky;
@@ -48,8 +48,10 @@ void init() {
     cam = std::make_unique<Camera>();
 
     /* SETUP FRAME BUFFERS */
-    reflectionFBO = std::make_unique<FrameBuffer>(320, 180, false);
-    refractionFBO = std::make_unique<FrameBuffer>(1280, 720, true);
+    reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 4,
+                                                  SCREEN_WIDTH / 4, false);
+    refractionFBO =
+        std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, true);
     bindDefaultFramebuffer();
 
     /* SETUP PROGRAMS */
@@ -98,9 +100,9 @@ void init() {
     sky->setShader(skyShader);
     sky->loadModel("assets/models/skybox.obj");
     sky->addTexture(skyTex);
-    
+
     water = std::make_unique<Water>();
-    water->generate(90.0, waterPlane.w, 100.0, 120.0, 120.0);
+    water->generate(50.0, waterPlane.w, 50.0, 20.0, 20.0);
     water->setShader(waterShader);
     water->addTexture(reflectionFBO->texture);
     water->addTexture(refractionFBO->texture);
@@ -110,13 +112,25 @@ void init() {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // bindDefaultFramebuffer();
+
     // Refraction
     refractionFBO->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     terrain->draw(*cam, waterPlane);
+
+    Camera camCopy = *cam;
+
+    camCopy.invertPitch();
+    float distance = 2 * (camCopy.y() - waterPlane.w);
+    camCopy.y() -= distance;
+    camCopy.updateCamMatrix();
 
     // Reflection
     reflectionFBO->bind();
-    terrain->draw(*cam, waterPlane * -1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    terrain->draw(camCopy, waterPlane * -1);
+    sky->draw(camCopy);
 
     // Scene
     bindDefaultFramebuffer();
@@ -142,6 +156,7 @@ void updateCam() {
 
     if (glutKeyIsDown('r')) cam->up();
     if (glutKeyIsDown('e')) cam->down();
+    if (glutKeyIsDown('i')) cam->invertPitch();
 
     cam->updatePos(mx, mz);
 
@@ -175,7 +190,7 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
     glutInitContextVersion(3, 2);
-    glutInitWindowSize(SCREEN_HEIGHT, SCREEN_WIDTH);
+    glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     glutCreateWindow("WAWW");
     glutDisplayFunc(display);
     init();

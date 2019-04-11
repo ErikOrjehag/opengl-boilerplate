@@ -19,6 +19,8 @@ void Camera::down() { camPos.y -= camSpeed; }
 void Camera::rotateX(float dx) { xrot += dx; }
 void Camera::rotateY(float dy) { yrot += dy; }
 
+void Camera::invertPitch() { yrot *= -1; }
+
 void Camera::updatePos(float mx, float mz) {
     camPos.x += mx * camSpeed * cos(xrot) - mz * camSpeed * sin(xrot);
     camPos.z += mx * camSpeed * sin(xrot) + mz * camSpeed * cos(xrot);

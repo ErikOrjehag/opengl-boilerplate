@@ -24,6 +24,8 @@ class Camera {
     void rotateX(float dx);
     void rotateY(float dy);
 
+    void invertPitch();
+
     float& x() { return camPos.x; };
     float& y() { return camPos.y; };
     float& z() { return camPos.z; };

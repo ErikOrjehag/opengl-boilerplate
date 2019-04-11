@@ -1,8 +1,6 @@
 #include "Object.hh"
 
-Object::Object() : toWorld { IdentityMatrix() } {
-    
-}
+Object::Object() : toWorld { IdentityMatrix() } {}
 
 void Object::setShader(GLuint shader) { this->shader = shader; }
 

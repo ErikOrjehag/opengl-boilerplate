@@ -56,6 +56,9 @@ $(BUILD_DIR)LoadTGA.o: $(COMMON_DIR)LoadTGA.c $(COMMON_DIR)LoadTGA.h
 $(BUILD_DIR)MicroGlut.o: $(COMMON_DIR)Linux/MicroGlut.c $(COMMON_DIR)Linux/MicroGlut.h
 	g++ $(CCFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(COMMON_DIR)Linux/MicroGlut.c -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)MicroGlut.o
 
+run:
+	bin/waww
+
 clean:
 	$(RM) *.o
 	$(RM) *.out

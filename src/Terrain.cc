@@ -1,10 +1,9 @@
 #include "Terrain.hh"
-#include "VectorUtils3.h"
 #include <algorithm>
 #include <iostream>
+#include "VectorUtils3.h"
 
 void Terrain::generate(std::string terrain_file) {
-
     LoadTGATextureData(terrain_file.c_str(), &tex);
 
     int vertexCount = tex.width * tex.height;
@@ -13,7 +12,8 @@ void Terrain::generate(std::string terrain_file) {
 
     GLfloat* vertexArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
     GLfloat* normalArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
-    GLfloat* texCoordArray = (GLfloat*)malloc(sizeof(GLfloat) * 2 * vertexCount);
+    GLfloat* texCoordArray =
+        (GLfloat*)malloc(sizeof(GLfloat) * 2 * vertexCount);
     GLuint* indexArray = (GLuint*)malloc(sizeof(GLuint) * triangleCount * 3);
 
     for (x = 0; x < tex.width; x++) {
@@ -37,20 +37,27 @@ void Terrain::generate(std::string terrain_file) {
             normalArray[(x + z * tex.width) * 3 + 1] = normal.y;
             normalArray[(x + z * tex.width) * 3 + 2] = normal.z;
             // Texture coordinates. You may want to scale them.
-            texCoordArray[(x + z * tex.width) * 2 + 0] = x;  // (float)x / tex.width;
-            texCoordArray[(x + z * tex.width) * 2 + 1] = z;  // (float)z / tex.height;
+            texCoordArray[(x + z * tex.width) * 2 + 0] =
+                x;  // (float)x / tex.width;
+            texCoordArray[(x + z * tex.width) * 2 + 1] =
+                z;  // (float)z / tex.height;
         }
     }
     for (x = 0; x < tex.width - 1; x++) {
         for (z = 0; z < tex.height - 1; z++) {
             // Triangle 1
             indexArray[(x + z * (tex.width - 1)) * 6 + 0] = x + z * tex.width;
-            indexArray[(x + z * (tex.width - 1)) * 6 + 1] = x + (z + 1) * tex.width;
-            indexArray[(x + z * (tex.width - 1)) * 6 + 2] = x + 1 + z * tex.width;
+            indexArray[(x + z * (tex.width - 1)) * 6 + 1] =
+                x + (z + 1) * tex.width;
+            indexArray[(x + z * (tex.width - 1)) * 6 + 2] =
+                x + 1 + z * tex.width;
             // Triangle 2
-            indexArray[(x + z * (tex.width - 1)) * 6 + 3] = x + 1 + z * tex.width;
-            indexArray[(x + z * (tex.width - 1)) * 6 + 4] = x + (z + 1) * tex.width;
-            indexArray[(x + z * (tex.width - 1)) * 6 + 5] = x + 1 + (z + 1) * tex.width;
+            indexArray[(x + z * (tex.width - 1)) * 6 + 3] =
+                x + 1 + z * tex.width;
+            indexArray[(x + z * (tex.width - 1)) * 6 + 4] =
+                x + (z + 1) * tex.width;
+            indexArray[(x + z * (tex.width - 1)) * 6 + 5] =
+                x + 1 + (z + 1) * tex.width;
         }
     }
 
@@ -58,21 +65,16 @@ void Terrain::generate(std::string terrain_file) {
 
     // Create Model and upload to GPU:
 
-    model = *LoadDataToModel(
-        vertexArray,
-        normalArray,
-        texCoordArray,
-        NULL,
-        indexArray,
-        vertexCount,
-        triangleCount * 3);
+    model = *LoadDataToModel(vertexArray, normalArray, texCoordArray, NULL,
+                             indexArray, vertexCount, triangleCount * 3);
 }
 
 float Terrain::texHeight(int x, int z) {
-    return tex.imageData[
-        (std::max(0, std::min<int>(tex.width - 1, x)) +
-        std::max(0, std::min<int>(tex.height - 1, z)) * tex.width) *
-        (tex.bpp / 8)] / 20.0;
+    return tex.imageData[(std::max(0, std::min<int>(tex.width - 1, x)) +
+                          std::max(0, std::min<int>(tex.height - 1, z)) *
+                              tex.width) *
+                         (tex.bpp / 8)] /
+           20.0;
 }
 
 float Terrain::height(float xx, float zz) {
@@ -80,12 +82,9 @@ float Terrain::height(float xx, float zz) {
     int z = zz;
 
     // First triangle
-    float v1x = x,
-          v1z = z;
-    float v2x = x,
-          v2z = z + 1;
-    float v3x = x + 1,
-          v3z = z;
+    float v1x = x, v1z = z;
+    float v2x = x, v2z = z + 1;
+    float v3x = x + 1, v3z = z;
 
     // Second triangle
     if (1 - (xx - x) < (zz - z)) {

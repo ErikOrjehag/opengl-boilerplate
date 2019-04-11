@@ -1,20 +1,18 @@
 #pragma once
 
-#include "Object.hh"
-#include "LoadTGA.h"
 #include <string>
+#include "LoadTGA.h"
+#include "Object.hh"
 
 class Terrain : public Object {
-    
     using Object::Object;
 
-public:
+   public:
     void generate(std::string terrain_file);
     float height(float x, float z);
 
-private:
+   private:
     float texHeight(int x, int z);
 
-    TextureData tex{};
-
+    TextureData tex {};
 };
