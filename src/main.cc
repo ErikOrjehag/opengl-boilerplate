@@ -27,6 +27,8 @@ std::unique_ptr<FrameBuffer> refractionFBO;
 
 mat4 camMatrix;
 
+bool onGround { false };
+
 int mousex;
 int mousey;
 int buttonState = GLUT_UP;
@@ -157,11 +159,14 @@ void updateCam() {
     if (glutKeyIsDown('r')) cam->up();
     if (glutKeyIsDown('e')) cam->down();
     if (glutKeyIsDown('i')) cam->invertPitch();
+    if (glutKeyIsDown('l')) onGround = !onGround;
 
     cam->updatePos(mx, mz);
 
-    // float h = terrain.height(cam.x(), cam.z());
-    // cam.y() = h + 1.86;
+    if (onGround) {
+        float h = terrain->height(cam->x(), cam->z());
+        cam->y() = h + 1.86;
+    }
 
     cam->updateCamMatrix();
 }

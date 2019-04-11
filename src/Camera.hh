@@ -30,12 +30,13 @@ class Camera {
     float& y() { return camPos.y; };
     float& z() { return camPos.z; };
 
+    vec3 camPos = { 1, 8, 1 };
+
    private:
     // Movement
     float yrot = 0;
     float xrot = M_PI * 3.f / 4.f;
     float camSpeed = 0.7;
-    vec3 camPos = { 1, 8, 1 };
 
     const float SPEED_DELTA = 0.01;
 };

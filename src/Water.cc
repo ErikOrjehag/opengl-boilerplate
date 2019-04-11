@@ -23,7 +23,6 @@ void Water::generate(float x, float y, float z, float width, float height) {
 }
 
 void Water::_draw(const Camera &cam) {
-    // glUniform3fv(glGetUniformLocation(shader, "inCamera"), 1,
-    // &(cam.camPos.x));
+    glUniform3fv(glGetUniformLocation(shader, "inCamera"), 1, &(cam.camPos.x));
     DrawModel(&model, shader, "inPosition", NULL, NULL);
 }
