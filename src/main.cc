@@ -159,8 +159,8 @@ void display() {
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
 
-    reflectionDebug->draw();
-    refractionDebug->draw();
+    // reflectionDebug->draw();
+    // refractionDebug->draw();
 
     glutSwapBuffers();
 
