@@ -14,15 +14,6 @@ uniform float waveOffset;
 
 const float waveStrength = 0.02;
 
-float linearizeDepth(in vec2 uv)
-{
-    float zNear = 0.2;
-    float zFar  = 500.0;
-    float d = texture2D(depth, uv).x;
-    return (2.0 * zNear) / (zFar + zNear - d * (zFar - zNear));
-}
-
-
 void main(void)
 {
 	float refractiveFactor = pow(dot(normalize(toCamera), vec3(0, 1, 0)), 2.5);
@@ -39,7 +30,5 @@ void main(void)
 	vec4 refractionColor = texture(refraction, refractionTexCoord);
 	vec4 reflectionColor = texture(reflection, reflectionTexCoord);
 
-	float c = linearizeDepth(refractionTexCoord);
-
-	color = mix(reflectionColor, (1-c) * refractionColor, refractiveFactor);
+	color = mix(reflectionColor, refractionColor, refractiveFactor);
 }

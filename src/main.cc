@@ -27,6 +27,7 @@ std::unique_ptr<FrameBuffer> reflectionFBO;
 std::unique_ptr<FrameBuffer> refractionFBO;
 std::unique_ptr<ScreenFill> reflectionDebug;
 std::unique_ptr<ScreenFill> refractionDebug;
+std::unique_ptr<ScreenFill> depthDebug;
 
 mat4 camMatrix;
 
@@ -36,6 +37,8 @@ bool mouseInit { false };
 int mousex;
 int mousey;
 int buttonState = GLUT_UP;
+
+GLuint depth;
 
 void bindDefaultFramebuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -56,13 +59,19 @@ void init() {
     // Create screen fill quad
     reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
     refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
+    depthDebug = std::make_unique<ScreenFill>(0.5, 0.0, 0.25, 0.25);
 
     /* SETUP FRAME BUFFERS */
     reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 2,
                                                   SCREEN_WIDTH / 2, false);
     refractionFBO =
         std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, true);
-    bindDefaultFramebuffer();
+
+    glGenTextures(1, &depth);
+    glBindTexture(GL_TEXTURE_2D, depth);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     /* SETUP PROGRAMS */
     GLuint terrainShader = loadShaders("assets/shaders/terrain.vert",
@@ -91,16 +100,16 @@ void init() {
     glUniform1i(glGetUniformLocation(waterShader, "dudv"), 3);
 
     GLuint debugShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
-
+    GLuint debugDepthShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug-depth.frag");
+    
     reflectionDebug->setShader(debugShader);
-    refractionDebug->setShader(debugShader);
     reflectionDebug->addTexture(reflectionFBO->texture);
+    
+    refractionDebug->setShader(debugShader);
     refractionDebug->addTexture(refractionFBO->texture);
 
-    reflectionDebug->setShader(debugShader);
-    refractionDebug->setShader(debugShader);
-    reflectionDebug->addTexture(reflectionFBO->texture);
-    refractionDebug->addTexture(refractionFBO->texture);
+    depthDebug->setShader(debugDepthShader);
+    depthDebug->addTexture(depth);
 
     printError("ERROR: SETUP PROGRAMS");
 
@@ -163,8 +172,13 @@ void display() {
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
 
+    glReadBuffer(GL_BACK);
+    glBindTexture(GL_TEXTURE_2D, depth);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+
     reflectionDebug->draw();
     refractionDebug->draw();
+    depthDebug->draw();
 
     glutSwapBuffers();
 
