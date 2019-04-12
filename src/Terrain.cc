@@ -24,8 +24,8 @@ void Terrain::generate(std::string terrain_file) {
             float s10 = texHeight(x, z - 1);
             float s12 = texHeight(x, z + 1);
 
-            vec3 va = Normalize(SetVector(2.0, 0.0, s21 - s01));
-            vec3 vb = Normalize(SetVector(0.0, 2.0, s12 - s10));
+            vec3 va = Normalize(SetVector(2.0, 0.0, -(s21 - s01)));
+            vec3 vb = Normalize(SetVector(0.0, 2.0, (s12 - s10)));
             vec3 normal = Normalize(CrossProduct(va, vb));
 
             // Vertex array. You need to scale this properly

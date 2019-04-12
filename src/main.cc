@@ -54,8 +54,8 @@ void init() {
     cam = std::make_unique<Camera>();
 
     // Create screen fill quad
-    // reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
-    // refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
+    reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
+    refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
 
 
     /* SETUP FRAME BUFFERS */
@@ -93,10 +93,10 @@ void init() {
 
     GLuint debugShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
 
-    // reflectionDebug->setShader(debugShader);
-    // refractionDebug->setShader(debugShader);
-    // reflectionDebug->addTexture(reflectionFBO->texture);
-    // refractionDebug->addTexture(refractionFBO->texture);
+    reflectionDebug->setShader(debugShader);
+    refractionDebug->setShader(debugShader);
+    reflectionDebug->addTexture(reflectionFBO->texture);
+    refractionDebug->addTexture(refractionFBO->texture);
 
 
     printError("ERROR: SETUP PROGRAMS");
@@ -105,7 +105,7 @@ void init() {
     GLuint grassTex, dirtTex, skyTex, dudvTex;
     LoadTGATextureSimple("assets/textures/grass2_1024.tga", &grassTex);
     LoadTGATextureSimple("assets/textures/dirt2_1024.tga", &dirtTex);
-    LoadTGATextureSimple("assets/textures/sky2.tga", &skyTex);
+    LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
     LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
 
     printError("ERROR: SETUP TEXTURES");
@@ -160,8 +160,8 @@ void display() {
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
 
-    // reflectionDebug->draw();
-    // refractionDebug->draw();
+    reflectionDebug->draw();
+    refractionDebug->draw();
 
 
     glutSwapBuffers();
