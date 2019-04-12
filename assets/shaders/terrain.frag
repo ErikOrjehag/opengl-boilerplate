@@ -13,5 +13,5 @@ void main(void)
 
 	float blend = min(1, 2.0 * abs(dot(normalize(fragNormal), vec3(0, 1, 0))));
 
-	outColor = shade * ((1.0 - blend) * texture(grass, texCoord) + blend * texture(dirt, texCoord));
+	outColor = shade * mix(texture(grass, texCoord), texture(dirt, texCoord), blend);
 }

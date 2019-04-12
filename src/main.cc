@@ -12,9 +12,10 @@
 #include "Skybox.hh"
 #include "Terrain.hh"
 #include "Water.hh"
+#include "ScreenFill.hh"
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 720;
+const int SCREEN_WIDTH = 1800;
+const int SCREEN_HEIGHT = 900;
 
 const vec4 waterPlane(0, -1, 0, 5);
 
@@ -24,6 +25,9 @@ std::unique_ptr<Water> water;
 std::unique_ptr<Camera> cam;
 std::unique_ptr<FrameBuffer> reflectionFBO;
 std::unique_ptr<FrameBuffer> refractionFBO;
+std::unique_ptr<ScreenFill> reflectionDebug;
+std::unique_ptr<ScreenFill> refractionDebug;
+
 
 mat4 camMatrix;
 
@@ -48,6 +52,11 @@ void init() {
 
     /* CREATE CAMERA */
     cam = std::make_unique<Camera>();
+
+    // Create screen fill quad
+    // reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
+    // refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
+
 
     /* SETUP FRAME BUFFERS */
     reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 2,
@@ -82,13 +91,21 @@ void init() {
     glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
     glUniform1i(glGetUniformLocation(waterShader, "dudv"), 3);
 
+    GLuint debugShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
+
+    // reflectionDebug->setShader(debugShader);
+    // refractionDebug->setShader(debugShader);
+    // reflectionDebug->addTexture(reflectionFBO->texture);
+    // refractionDebug->addTexture(refractionFBO->texture);
+
+
     printError("ERROR: SETUP PROGRAMS");
 
     /* SETUP TEXTURES */
     GLuint grassTex, dirtTex, skyTex, dudvTex;
-    LoadTGATextureSimple("assets/textures/grass.tga", &grassTex);
-    LoadTGATextureSimple("assets/textures/dirt.tga", &dirtTex);
-    LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
+    LoadTGATextureSimple("assets/textures/grass2_1024.tga", &grassTex);
+    LoadTGATextureSimple("assets/textures/dirt2_1024.tga", &dirtTex);
+    LoadTGATextureSimple("assets/textures/sky2.tga", &skyTex);
     LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
 
     printError("ERROR: SETUP TEXTURES");
@@ -142,6 +159,10 @@ void display() {
     sky->draw(*cam);
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
+
+    // reflectionDebug->draw();
+    // refractionDebug->draw();
+
 
     glutSwapBuffers();
 
