@@ -9,10 +9,10 @@
 
 #include "Camera.hh"
 #include "FrameBuffer.hh"
+#include "ScreenFill.hh"
 #include "Skybox.hh"
 #include "Terrain.hh"
 #include "Water.hh"
-#include "ScreenFill.hh"
 
 const int SCREEN_WIDTH = 1800;
 const int SCREEN_HEIGHT = 900;
@@ -28,11 +28,11 @@ std::unique_ptr<FrameBuffer> refractionFBO;
 std::unique_ptr<ScreenFill> reflectionDebug;
 std::unique_ptr<ScreenFill> refractionDebug;
 
-
 mat4 camMatrix;
 
 bool onGround { false };
 
+bool mouseInit { false };
 int mousex;
 int mousey;
 int buttonState = GLUT_UP;
@@ -54,9 +54,8 @@ void init() {
     cam = std::make_unique<Camera>();
 
     // Create screen fill quad
-    // reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
-    // refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
-
+    reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
+    refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
 
     /* SETUP FRAME BUFFERS */
     reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 2,
@@ -91,13 +90,13 @@ void init() {
     glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
     glUniform1i(glGetUniformLocation(waterShader, "dudv"), 3);
 
-    GLuint debugShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
+    GLuint debugShader =
+        loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
 
-    // reflectionDebug->setShader(debugShader);
-    // refractionDebug->setShader(debugShader);
-    // reflectionDebug->addTexture(reflectionFBO->texture);
-    // refractionDebug->addTexture(refractionFBO->texture);
-
+    reflectionDebug->setShader(debugShader);
+    refractionDebug->setShader(debugShader);
+    reflectionDebug->addTexture(reflectionFBO->texture);
+    refractionDebug->addTexture(refractionFBO->texture);
 
     printError("ERROR: SETUP PROGRAMS");
 
@@ -105,7 +104,7 @@ void init() {
     GLuint grassTex, dirtTex, skyTex, dudvTex;
     LoadTGATextureSimple("assets/textures/grass2_1024.tga", &grassTex);
     LoadTGATextureSimple("assets/textures/dirt2_1024.tga", &dirtTex);
-    LoadTGATextureSimple("assets/textures/sky2.tga", &skyTex);
+    LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
     LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
 
     printError("ERROR: SETUP TEXTURES");
@@ -160,9 +159,8 @@ void display() {
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
 
-    // reflectionDebug->draw();
-    // refractionDebug->draw();
-
+    reflectionDebug->draw();
+    refractionDebug->draw();
 
     glutSwapBuffers();
 
@@ -204,7 +202,7 @@ void timer(int i) {
 void mouseButton(int button, int state, int x, int y) { buttonState = state; }
 
 void mouseMove(int x, int y) {
-    if (buttonState == GLUT_DOWN) {
+    if (buttonState == GLUT_DOWN && mouseInit) {
         float dx = (x - mousex) / 200.f;
         float dy = (y - mousey) / 200.f;
         cam->rotateX(dx);
@@ -213,6 +211,7 @@ void mouseMove(int x, int y) {
 
     mousex = x;
     mousey = y;
+    mouseInit = true;
 }
 
 int main(int argc, char **argv) {
