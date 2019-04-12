@@ -3,7 +3,7 @@
 ScreenFill::ScreenFill(float x, float y, float width, float height) 
         : x{x}, y{y}, width{width}, height{height} {
 
-    transform = T(2*x, -2*y, 0.0) * S(width, height, 1.0) * T(-1, 1, 0.0);
+    transform = T(x*2, -y*2, 0) * T(width, -height, 0) * T(-1, 1, 0.0) * S(width, height, 1.0);
 
     int vertexCount = 6;
     int triangleCount = 2;

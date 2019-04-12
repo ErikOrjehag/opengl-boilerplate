@@ -90,8 +90,12 @@ void init() {
     glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
     glUniform1i(glGetUniformLocation(waterShader, "dudv"), 3);
 
-    GLuint debugShader =
-        loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
+    GLuint debugShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
+
+    reflectionDebug->setShader(debugShader);
+    refractionDebug->setShader(debugShader);
+    reflectionDebug->addTexture(reflectionFBO->texture);
+    refractionDebug->addTexture(refractionFBO->texture);
 
     reflectionDebug->setShader(debugShader);
     refractionDebug->setShader(debugShader);
