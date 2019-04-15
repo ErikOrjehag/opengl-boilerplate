@@ -7,5 +7,5 @@ class Skybox : public Object {
     Skybox();
 
    private:
-    void _draw(const Camera &cam) override;
+    void prepareDraw(const Camera &cam) override;
 };

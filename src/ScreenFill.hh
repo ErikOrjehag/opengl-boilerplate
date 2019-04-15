@@ -6,29 +6,25 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "MicroGlut.h"
+#include "Shader.hh"
 #include "VectorUtils3.h"
 #include "loadobj.h"
-#include "MicroGlut.h"
-
-
 
 class ScreenFill {
-
-    public:
-
+   public:
     ScreenFill(float x, float y, float width, float height);
 
-    void setShader(GLuint shader);
+    void setShader(Shader shader);
     void addTexture(GLuint texture);
     void draw();
 
+    mat4 transform {};
 
-    mat4 transform{};
-
-
-    private:
+   private:
     float x, y, width, height;
     Model model;
-    std::vector<GLuint> textures{};
-    GLuint shader;
+    std::vector<GLuint> textures {};
+    Shader shader;
 };

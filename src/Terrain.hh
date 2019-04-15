@@ -13,7 +13,6 @@ class Terrain : public Object {
 
    private:
     float texHeight(int x, int z);
-    void _draw(const Camera &cam) override;
 
     TextureData tex {};
 };

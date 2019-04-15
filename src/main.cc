@@ -10,6 +10,7 @@
 #include "Camera.hh"
 #include "FrameBuffer.hh"
 #include "ScreenFill.hh"
+#include "Shader.hh"
 #include "Skybox.hh"
 #include "Terrain.hh"
 #include "Water.hh"
@@ -79,7 +80,7 @@ void initSkybox() {
     LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
 
     sky = std::make_unique<Skybox>();
-    sky->setShader(skyShader);
+    sky->setShader(Shader { skyShader });
     sky->loadModel("assets/models/skybox.obj");
     sky->addTexture(skyTex);
     printError("Init skybox");
@@ -98,7 +99,7 @@ void initTerrain() {
 
     terrain = std::make_unique<Terrain>();
     terrain->generate("assets/textures/terrain.tga");
-    terrain->setShader(terrainShader);
+    terrain->setShader(Shader { terrainShader });
     terrain->addTexture(grassTex);
     terrain->addTexture(dirtTex);
     printError("Init terrain");
@@ -126,10 +127,10 @@ void initWater() {
     GLuint debugShader =
         loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
 
-    reflectionDebug->setShader(debugShader);
+    reflectionDebug->setShader(Shader { debugShader });
     reflectionDebug->addTexture(reflectionFBO->texture);
 
-    refractionDebug->setShader(debugShader);
+    refractionDebug->setShader(Shader { debugShader });
     refractionDebug->addTexture(refractionFBO->texture);
 
     GLuint dudvTex;
@@ -137,7 +138,7 @@ void initWater() {
 
     water = std::make_unique<Water>();
     water->generate(100.0, waterPlane.w, 100.0, 75.0, 75.0);
-    water->setShader(waterShader);
+    water->setShader(Shader { waterShader });
     water->addTexture(reflectionFBO->texture);
     water->addTexture(refractionFBO->texture);
     water->addTexture(refractionFBO->depth);
@@ -149,7 +150,7 @@ void initObjects() {
     sphereObject = std::make_unique<Object>();
     GLuint objectShader =
         loadShaders("assets/shaders/object.vert", "assets/shaders/object.frag");
-    sphereObject->setShader(objectShader);
+    sphereObject->setShader(Shader { objectShader });
     sphereObject->loadModel("assets/models/orb.obj");
     sphereObject->toWorld = S(10, 10, 10) * T(10, 10, 10);
 
@@ -169,7 +170,7 @@ void initDebug() {
     GLuint debugDepthShader = loadShaders("assets/shaders/debug.vert",
                                           "assets/shaders/debug-depth.frag");
 
-    depthDebug->setShader(debugDepthShader);
+    depthDebug->setShader(Shader { debugDepthShader });
     depthDebug->addTexture(depth);
     printError("Init debug");
 }
@@ -183,12 +184,12 @@ void init() {
     printError("GL inits");
 
     initCamera();
-    initGodrays();
     initTerrain();
     initSkybox();
     initWater();
     initDebug();
     initObjects();
+    initGodrays();
 }
 
 void display() {

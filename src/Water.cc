@@ -24,15 +24,13 @@ void Water::generate(float x, float y, float z, float width, float height) {
                              vertexCount, triangleCount * 3);
 }
 
-void Water::_draw(const Camera &cam) {
+void Water::prepareDraw(const Camera &cam) {
     float timeScale = 0.00001;
 
     GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 
     float moveOffset = std::fmod(timeScale * t, 1.0);
 
-    glUniform1f(glGetUniformLocation(shader, "waveOffset"), moveOffset);
-
-    glUniform3fv(glGetUniformLocation(shader, "inCamera"), 1, &(cam.camPos.x));
-    DrawModel(&model, shader, "inPosition", NULL, NULL);
+    shader.upload("waveOffset", moveOffset);
+    shader.upload("inCamera", cam.camPos);
 }

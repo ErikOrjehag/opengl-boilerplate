@@ -2,12 +2,12 @@
 
 Object::Object() : toWorld { IdentityMatrix() } {}
 
-void Object::setShader(GLuint shader) { this->shader = shader; }
+void Object::setShader(Shader shader) { this->shader = shader; }
 
 void Object::addTexture(GLuint texture) { textures.push_back(texture); }
 
 void Object::draw(const Camera &cam, std::optional<vec4> plane) {
-    glUseProgram(shader);
+    shader.activate();
 
     for (size_t i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
@@ -15,27 +15,23 @@ void Object::draw(const Camera &cam, std::optional<vec4> plane) {
     }
 
     if (plane) {
-        glUniform4fv(glGetUniformLocation(shader, "plane"), 1,
-                     &(plane.value().x));
+        shader.upload("plane", plane.value());
     }
 
-    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_TRUE,
-                       cam.projectionMatrix.m);
-    glUniformMatrix4fv(glGetUniformLocation(shader, "modelToWorld"), 1, GL_TRUE,
-                       toWorld.m);
-    glUniformMatrix4fv(glGetUniformLocation(shader, "worldToView"), 1, GL_TRUE,
-                       cam.camMatrix.m);
+    shader.upload("projection", cam.projectionMatrix);
+    shader.upload("modelToWorld", toWorld);
+    shader.upload("worldToView", cam.camMatrix);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    _draw(cam);
+    prepareDraw(cam);
+
+    DrawModel(&model, shader.program, "inPosition",
+              shader.hasNormals ? "inNormal" : NULL,
+              shader.hasTextureCoords ? "inTexCoord" : NULL);
 }
 
-void Object::_draw(const Camera &cam) {
-    DrawModel(&model, shader, "inPosition",
-              this->useTexCoord ? "inNormal" : NULL,
-              this->useTexCoord ? "inTexCoord" : NULL);
-}
+void Object::prepareDraw(const Camera &cam) {}
 
 void Object::loadModel(const std::string &modelName) {
     model = *LoadModelPlus(modelName.c_str());
