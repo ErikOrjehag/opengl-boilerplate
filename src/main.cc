@@ -28,6 +28,7 @@ std::unique_ptr<FrameBuffer> refractionFBO;
 std::unique_ptr<ScreenFill> reflectionDebug;
 std::unique_ptr<ScreenFill> refractionDebug;
 std::unique_ptr<ScreenFill> depthDebug;
+std::unique_ptr<Object> sphereObject;
 
 mat4 camMatrix;
 
@@ -45,35 +46,31 @@ void bindDefaultFramebuffer() {
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-void init() {
-    /* INIT GL */
-    glClearColor(0, 0, 0, 0);
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_CLIP_DISTANCE0);
-    printError("GL inits");
-
+void initCamera() {
     /* CREATE CAMERA */
     cam = std::make_unique<Camera>();
+    printError("Init camera");
+}
 
-    // Create screen fill quad
-    reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
-    refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
-    depthDebug = std::make_unique<ScreenFill>(0.5, 0.0, 0.25, 0.25);
+void initSkybox() {
+    GLuint skyShader =
+        loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
+    glUseProgram(skyShader);
+    glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1,
+                       GL_TRUE, cam->projectionMatrix.m);
+    glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
 
-    /* SETUP FRAME BUFFERS */
-    reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 2,
-                                                  SCREEN_WIDTH / 2, false);
-    refractionFBO =
-        std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, true);
+    GLuint skyTex;
+    LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
 
-    glGenTextures(1, &depth);
-    glBindTexture(GL_TEXTURE_2D, depth);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    sky = std::make_unique<Skybox>();
+    sky->setShader(skyShader);
+    sky->loadModel("assets/models/skybox.obj");
+    sky->addTexture(skyTex);
+    printError("Init skybox");
+}
 
-    /* SETUP PROGRAMS */
+void initTerrain() {
     GLuint terrainShader = loadShaders("assets/shaders/terrain.vert",
                                        "assets/shaders/terrain.frag");
     glUseProgram(terrainShader);
@@ -82,12 +79,27 @@ void init() {
     glUniform1i(glGetUniformLocation(terrainShader, "grass"), 0);
     glUniform1i(glGetUniformLocation(terrainShader, "dirt"), 1);
 
-    GLuint skyShader =
-        loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
-    glUseProgram(skyShader);
-    glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1,
-                       GL_TRUE, cam->projectionMatrix.m);
-    glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
+    GLuint grassTex, dirtTex;
+    LoadTGATextureSimple("assets/textures/grass2_1024.tga", &grassTex);
+    LoadTGATextureSimple("assets/textures/dirt2_1024.tga", &dirtTex);
+
+    terrain = std::make_unique<Terrain>();
+    terrain->generate("assets/textures/terrain.tga");
+    terrain->setShader(terrainShader);
+    terrain->addTexture(grassTex);
+    terrain->addTexture(dirtTex);
+    printError("Init terrain");
+}
+
+void initWater() {
+    reflectionDebug = std::make_unique<ScreenFill>(0.0, 0.0, 0.25, 0.25);
+    refractionDebug = std::make_unique<ScreenFill>(0.25, 0.0, 0.25, 0.25);
+
+    /* SETUP FRAME BUFFERS */
+    reflectionFBO = std::make_unique<FrameBuffer>(SCREEN_HEIGHT / 2,
+                                                  SCREEN_WIDTH / 2, false);
+    refractionFBO =
+        std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, true);
 
     GLuint waterShader =
         loadShaders("assets/shaders/water.vert", "assets/shaders/water.frag");
@@ -99,40 +111,18 @@ void init() {
     glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
     glUniform1i(glGetUniformLocation(waterShader, "dudv"), 3);
 
-    GLuint debugShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
-    GLuint debugDepthShader = loadShaders("assets/shaders/debug.vert", "assets/shaders/debug-depth.frag");
-    
+    /* FBO DEBUGGING */
+    GLuint debugShader =
+        loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
+
     reflectionDebug->setShader(debugShader);
     reflectionDebug->addTexture(reflectionFBO->texture);
-    
+
     refractionDebug->setShader(debugShader);
     refractionDebug->addTexture(refractionFBO->texture);
 
-    depthDebug->setShader(debugDepthShader);
-    depthDebug->addTexture(depth);
-
-    printError("ERROR: SETUP PROGRAMS");
-
-    /* SETUP TEXTURES */
-    GLuint grassTex, dirtTex, skyTex, dudvTex;
-    LoadTGATextureSimple("assets/textures/grass2_1024.tga", &grassTex);
-    LoadTGATextureSimple("assets/textures/dirt2_1024.tga", &dirtTex);
-    LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
+    GLuint dudvTex;
     LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
-
-    printError("ERROR: SETUP TEXTURES");
-
-    /* LOAD MODELS */
-    terrain = std::make_unique<Terrain>();
-    terrain->generate("assets/textures/terrain.tga");
-    terrain->setShader(terrainShader);
-    terrain->addTexture(grassTex);
-    terrain->addTexture(dirtTex);
-
-    sky = std::make_unique<Skybox>();
-    sky->setShader(skyShader);
-    sky->loadModel("assets/models/skybox.obj");
-    sky->addTexture(skyTex);
 
     water = std::make_unique<Water>();
     water->generate(100.0, waterPlane.w, 100.0, 75.0, 75.0);
@@ -141,6 +131,49 @@ void init() {
     water->addTexture(refractionFBO->texture);
     water->addTexture(refractionFBO->depth);
     water->addTexture(dudvTex);
+    printError("Init water");
+}
+
+void initObjects() {
+    sphereObject = std::make_unique<Object>();
+    GLuint objectShader =
+        loadShaders("assets/shaders/object.vert", "assets/shaders/object.frag");
+    sphereObject->setShader(objectShader);
+    sphereObject->loadModel("assets/models/groundsphere.obj");
+}
+
+void initDebug() {
+    depthDebug = std::make_unique<ScreenFill>(0.5, 0.0, 0.25, 0.25);
+
+    glGenTextures(1, &depth);
+    glBindTexture(GL_TEXTURE_2D, depth);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SCREEN_WIDTH,
+                 SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    GLuint debugDepthShader = loadShaders("assets/shaders/debug.vert",
+                                          "assets/shaders/debug-depth.frag");
+
+    depthDebug->setShader(debugDepthShader);
+    depthDebug->addTexture(depth);
+    printError("Init debug");
+}
+
+void init() {
+    /* INIT GL */
+    glClearColor(0, 0, 0, 0);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_CLIP_DISTANCE0);
+    printError("GL inits");
+
+    initCamera();
+    initTerrain();
+    initSkybox();
+    initWater();
+    initDebug();
+    initObjects();
 }
 
 void display() {
@@ -174,11 +207,15 @@ void display() {
 
     glReadBuffer(GL_BACK);
     glBindTexture(GL_TEXTURE_2D, depth);
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, SCREEN_WIDTH,
+                     SCREEN_HEIGHT, 0);
 
     reflectionDebug->draw();
     refractionDebug->draw();
     depthDebug->draw();
+
+    // Objects
+    sphereObject->draw(*cam);
 
     glutSwapBuffers();
 
