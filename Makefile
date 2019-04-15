@@ -17,11 +17,14 @@ OUT = $(OUT_DIR)$(OUT_FILENAME)
 
 COMMON_OFILES = $(BUILD_DIR)GL_utilities.o $(BUILD_DIR)VectorUtils3.o $(BUILD_DIR)loadobj.o $(BUILD_DIR)LoadTGA.o $(BUILD_DIR)MicroGlut.o
 
-all: $(BUILD_DIR)main.o $(BUILD_DIR)Shader.o $(BUILD_DIR)ScreenFill.o $(BUILD_DIR)FrameBuffer.o $(BUILD_DIR)Camera.o $(BUILD_DIR)Skybox.o $(BUILD_DIR)Terrain.o $(BUILD_DIR)Water.o $(BUILD_DIR)Object.o $(COMMON_OFILES)
+all: $(BUILD_DIR)main.o $(BUILD_DIR)Render.o $(BUILD_DIR)Shader.o $(BUILD_DIR)ScreenFill.o $(BUILD_DIR)FrameBuffer.o $(BUILD_DIR)Camera.o $(BUILD_DIR)Skybox.o $(BUILD_DIR)Terrain.o $(BUILD_DIR)Water.o $(BUILD_DIR)Object.o $(COMMON_OFILES)
 	g++ $(CCFLAGS) $? -o $(OUT) $(LIB_FLAGS)
 
 $(BUILD_DIR)main.o: $(SRC)main.cc
 	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SRC)main.cc -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $(BUILD_DIR)main.o
+
+$(BUILD_DIR)Render.o: $(SRC)Render.cc $(SRC)Render.hh
+	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SRC)Render.cc -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $@
 
 $(BUILD_DIR)Shader.o: $(SRC)Shader.cc $(SRC)Shader.hh
 	g++ $(CCFLAGS) $(WARNFLAGS) -c -DGL_GLEXT_PROTOTYPES $(LIB_FLAGS) $(SRC)Shader.cc -I$(SRC) -I$(COMMON_DIR) -I$(COMMON_DIR)Linux -o $@
