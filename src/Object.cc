@@ -26,9 +26,13 @@ void Object::draw(const Camera &cam, std::optional<vec4> plane) {
     glEnable(GL_CULL_FACE);
     prepareDraw(cam);
 
-    DrawModel(&model, shader.program, "inPosition",
-              shader.hasNormals ? "inNormal" : NULL,
-              shader.hasTextureCoords ? "inTexCoord" : NULL);
+    int ok = DrawModel(&model, shader.program, "inPosition",
+                       shader.hasNormals ? "inNormal" : NULL,
+                       shader.hasTextureCoords ? "inTexCoord" : NULL);
+
+    if (ok == 0) {
+        std::cerr << "Error in model " << this->modelname << std::endl;
+    }
 }
 
 void Object::prepareDraw(const Camera &cam) {}

@@ -33,8 +33,7 @@ std::unique_ptr<ScreenFill> depthDebug;
 std::unique_ptr<ScreenFill> sunDebug;
 std::unique_ptr<Object> sphereObject;
 
-std::unique_ptr<Shader> blackShader;
-std::unique_ptr<Shader> godShader;
+Shader blackShader {};
 
 mat4 camMatrix;
 
@@ -61,17 +60,21 @@ void initCamera() {
 }
 
 void initGodrays() {
-    blackShader = std::make_unique<Shader>(
-        loadShaders("assets/shaders/black.vert", "assets/shaders/black.frag"));
+    Shader godShader { loadShaders("assets/shaders/debug.vert",
+                                   "assets/shaders/godray.frag") };
+    godShader.upload("light", 0);
 
-    godShader = std::make_unique<Shader>(
-        loadShaders("assets/shaders/debug.vert", "assets/shaders/godray.frag"));
+    blackShader = Shader { loadShaders("assets/shaders/black.vert",
+                                       "assets/shaders/black.frag") };
+
+    blackShader.hasTextureCoords = false;
+    blackShader.hasNormals = false;
 
     LoadTGATextureSimple("assets/textures/sky_black.tga", &blackSkyTex);
 
     sunFBO = std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, false);
     sunDebug = std::make_unique<ScreenFill>(0.0, 0.25, 0.25, 0.25);
-    sunDebug->setShader(*godShader);
+    sunDebug->setShader(godShader);
     sunDebug->addTexture(sunFBO->texture);
     sunDebug->addTexture(depth);
 }
@@ -79,6 +82,8 @@ void initGodrays() {
 void initSkybox() {
     Shader skyShader { loadShaders("assets/shaders/sky.vert",
                                    "assets/shaders/sky.frag") };
+
+    skyShader.hasNormals = false;
 
     skyShader.upload("sky", 0);
 
@@ -124,6 +129,9 @@ void initWater() {
     Shader waterShader = Shader { loadShaders("assets/shaders/water.vert",
                                               "assets/shaders/water.frag") };
 
+    waterShader.hasNormals = false;
+    waterShader.hasTextureCoords = false;
+
     waterShader.upload("reflection", 0);
     waterShader.upload("refraction", 1);
     waterShader.upload("depth", 2);
@@ -154,9 +162,12 @@ void initWater() {
 
 void initObjects() {
     sphereObject = std::make_unique<Object>();
-    GLuint objectShader =
-        loadShaders("assets/shaders/object.vert", "assets/shaders/object.frag");
-    sphereObject->setShader(Shader { objectShader });
+    Shader objectShader { loadShaders("assets/shaders/object.vert",
+                                      "assets/shaders/object.frag") };
+
+    objectShader.hasTextureCoords = false;
+
+    sphereObject->setShader(objectShader);
     sphereObject->loadModel("assets/models/orb.obj");
     sphereObject->toWorld = S(10, 10, 10) * T(10, 10, 10);
 
@@ -173,10 +184,10 @@ void initDebug() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    GLuint debugDepthShader = loadShaders("assets/shaders/debug.vert",
-                                          "assets/shaders/debug-depth.frag");
+    Shader debugDepthShader { loadShaders("assets/shaders/debug.vert",
+                                          "assets/shaders/debug-depth.frag") };
 
-    depthDebug->setShader(Shader { debugDepthShader });
+    depthDebug->setShader(debugDepthShader);
     depthDebug->addTexture(depth);
     printError("Init debug");
 }
@@ -219,19 +230,26 @@ void display() {
     sky->draw(camCopy);
     terrain->draw(camCopy, waterPlane * -1);
 
-    // Godrays
+    // Sun position
     vec3 sunDir = { 1, -1.12, 0.58 };
     vec3 sunPosWorld = cam->camPos - sunDir * 50;
     vec4 sunPosScreen =
         cam->projectionMatrix * cam->camMatrix * vec3tovec4(sunPosWorld);
     sunPosScreen /= sunPosScreen.w;
 
+    // Godrays
+    sunDebug->shader.upload("source", sunPosScreen.x * 2 - 1,
+                            sunPosScreen.y * 2 - 1);
     sunFBO->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Skybox blackSky = *sky;
     blackSky.textures.clear();
     blackSky.textures.push_back(blackSkyTex);
     blackSky.draw(*cam);
+    Shader tmp = terrain->shader;
+    terrain->shader = blackShader;
+    terrain->draw(*cam);
+    terrain->shader = tmp;
 
     // Scene
     bindDefaultFramebuffer();

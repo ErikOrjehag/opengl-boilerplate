@@ -949,7 +949,7 @@ Mesh **SplitToMeshes(Mesh *m) {
                     if (mapt[ix] == -1)  // No mapping
                     {
                         //						printf("Upmapped
-                        //T at %d\n", j);
+                        // T at %d\n", j);
                         // If not, copy data!
                         mapt[ix] = mm[i]->texCount++;
                         mm[i]->textureCoords[mapt[ix] * 2] =
@@ -969,8 +969,8 @@ Mesh **SplitToMeshes(Mesh *m) {
                 ix = m->normalsIndex[j];  // get next index
                 if (ix == -1)             // Is it a separator?
                 {
-                    //					printf("N separator at %d\n",
-                    //j); sleep(1);
+                    //					printf("N separator at
+                    //%d\n", j); sleep(1);
                     // Save -1, which is a separator
                     mm[i]->normalsIndex[newNormalsIndexCount++] = ix;
                 } else {
@@ -978,7 +978,7 @@ Mesh **SplitToMeshes(Mesh *m) {
                     if (mapn[ix] == -1)  // No mapping
                     {
                         //						printf("Upmapped
-                        //N at %d\n", j);
+                        // N at %d\n", j);
                         // If not, copy data!
                         mapn[ix] = mm[i]->normalsCount++;
                         mm[i]->vertexNormals[mapn[ix] * 3] =
@@ -1084,9 +1084,11 @@ void ReportRerror(const char *caller, const char *name) {
 // and to get attribute locations. This is clearly not optimal, but the
 // goal is stability.
 
-void DrawModel(Model *m, GLuint program, const char *vertexVariableName,
-               const char *normalVariableName,
-               const char *texCoordVariableName) {
+int DrawModel(Model *m, GLuint program, const char *vertexVariableName,
+              const char *normalVariableName,
+              const char *texCoordVariableName) {
+    int ok = 1;
+
     if (m != NULL) {
         GLint loc;
 
@@ -1097,8 +1099,10 @@ void DrawModel(Model *m, GLuint program, const char *vertexVariableName,
         if (loc >= 0) {
             glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
             glEnableVertexAttribArray(loc);
-        } else
+        } else {
             ReportRerror("DrawModel", vertexVariableName);
+            ok = 0;
+        }
 
         if (normalVariableName != NULL) {
             loc = glGetAttribLocation(program, normalVariableName);
@@ -1106,8 +1110,10 @@ void DrawModel(Model *m, GLuint program, const char *vertexVariableName,
                 glBindBuffer(GL_ARRAY_BUFFER, m->nb);
                 glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
                 glEnableVertexAttribArray(loc);
-            } else
+            } else {
                 ReportRerror("DrawModel", normalVariableName);
+                ok = 0;
+            }
         }
 
         // VBO for texture coordinate data NEW for 5b
@@ -1117,12 +1123,16 @@ void DrawModel(Model *m, GLuint program, const char *vertexVariableName,
                 glBindBuffer(GL_ARRAY_BUFFER, m->tb);
                 glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
                 glEnableVertexAttribArray(loc);
-            } else
+            } else {
                 ReportRerror("DrawModel", texCoordVariableName);
+                ok = 0;
+            }
         }
 
         glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);
     }
+
+    return ok;
 }
 
 void DrawWireframeModel(Model *m, GLuint program,

@@ -24,12 +24,12 @@ class Object {
 
     std::vector<GLuint> textures {};
 
+    Shader shader;
+
    protected:
     virtual void prepareDraw(const Camera &cam);
 
     Model model;
-
-    Shader shader;
 
     // DEBUG
     std::string modelname { "UNNAMED OBJECT" };

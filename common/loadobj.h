@@ -39,9 +39,8 @@ Model** LoadModel2(const char* name);  // Multi-part OBJ!
 // Extended, load model and upload to arrays!
 // DrawModel is for drawing such preloaded models.
 
-void DrawModel(Model* m, GLuint program, const char* vertexVariableName,
-               const char* normalVariableName,
-               const char* texCoordVariableName);
+int DrawModel(Model* m, GLuint program, const char* vertexVariableName,
+              const char* normalVariableName, const char* texCoordVariableName);
 void DrawWireframeModel(Model* m, GLuint program,
                         const char* vertexVariableName,
                         const char* normalVariableName,
