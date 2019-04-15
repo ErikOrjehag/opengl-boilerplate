@@ -33,6 +33,9 @@ std::unique_ptr<ScreenFill> depthDebug;
 std::unique_ptr<ScreenFill> sunDebug;
 std::unique_ptr<Object> sphereObject;
 
+std::unique_ptr<Shader> blackShader;
+std::unique_ptr<Shader> godShader;
+
 mat4 camMatrix;
 
 bool onGround { false };
@@ -44,7 +47,6 @@ int buttonState = GLUT_UP;
 
 GLuint depth;
 
-GLuint blackShader;
 GLuint blackSkyTex;
 
 void bindDefaultFramebuffer() {
@@ -59,15 +61,19 @@ void initCamera() {
 }
 
 void initGodrays() {
-    blackShader =
-        loadShaders("assets/shaders/black.vert", "assets/shaders/black.frag");
+    blackShader = std::make_unique<Shader>(
+        loadShaders("assets/shaders/black.vert", "assets/shaders/black.frag"));
+
+    godShader = std::make_unique<Shader>(
+        loadShaders("assets/shaders/debug.vert", "assets/shaders/godray.frag"));
+
     LoadTGATextureSimple("assets/textures/sky_black.tga", &blackSkyTex);
-    GLuint godShader =
-        loadShaders("assets/shaders/debug.vert", "assets/shaders/godray.frag");
+
     sunFBO = std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, false);
     sunDebug = std::make_unique<ScreenFill>(0.0, 0.25, 0.25, 0.25);
-    sunDebug->setShader(godShader);
+    sunDebug->setShader(*godShader);
     sunDebug->addTexture(sunFBO->texture);
+    sunDebug->addTexture(depth);
 }
 
 void initSkybox() {
@@ -225,11 +231,7 @@ void display() {
     Skybox blackSky = *sky;
     blackSky.textures.clear();
     blackSky.textures.push_back(blackSkyTex);
-    Terrain blackTerrain = *terrain;
-    blackTerrain.textures.clear();
-    blackTerrain.setShader(blackShader);
     blackSky.draw(*cam);
-    blackTerrain.draw(*cam);
 
     // Scene
     bindDefaultFramebuffer();

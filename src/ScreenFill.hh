@@ -22,9 +22,10 @@ class ScreenFill {
 
     mat4 transform {};
 
+    Shader shader;
+
    private:
     float x, y, width, height;
     Model model;
     std::vector<GLuint> textures {};
-    Shader shader;
 };
