@@ -17,6 +17,7 @@ class Object {
     void draw(const Camera &cam, std::optional<vec4> plane = std::nullopt);
     void loadModel(const std::string &modelName);
     mat4 toWorld;
+    bool useTexCoord { true };
 
     std::vector<GLuint> textures {};
 

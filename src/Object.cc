@@ -32,7 +32,8 @@ void Object::draw(const Camera &cam, std::optional<vec4> plane) {
 }
 
 void Object::_draw(const Camera &cam) {
-    DrawModel(&model, shader, "inPosition", "inNormal", "inTexCoord");
+    DrawModel(&model, shader, "inPosition", "inNormal",
+              this->useTexCoord ? "inTexCoord" : NULL);
 }
 
 void Object::loadModel(const std::string &modelName) {
