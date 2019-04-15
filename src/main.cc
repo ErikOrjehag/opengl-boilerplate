@@ -146,9 +146,10 @@ void initObjects() {
     GLuint objectShader =
         loadShaders("assets/shaders/object.vert", "assets/shaders/object.frag");
     sphereObject->setShader(objectShader);
-    sphereObject->loadModel("assets/models/groundsphere.obj");
-
+    sphereObject->loadModel("assets/models/orb.obj");
     sphereObject->toWorld = S(10, 10, 10) * T(10, 10, 10);
+
+    sphereObject->useTexCoord = false;
 }
 
 void initDebug() {
