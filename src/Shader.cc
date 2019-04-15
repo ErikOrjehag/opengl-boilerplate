@@ -20,6 +20,12 @@ void Shader::upload(const std::string &uniform, int value) {
     glUniform1i(glGetUniformLocation(program, uniform.c_str()), value);
 }
 
+void Shader::upload(const std::string &uniform, float a, float b) {
+    activate();
+    float tmp[2] = { a, b };
+    glUniform2fv(glGetUniformLocation(program, uniform.c_str()), 1, tmp);
+}
+
 void Shader::upload(const std::string &uniform, const vec3 &vector) {
     activate();
     glUniform3fv(glGetUniformLocation(program, uniform.c_str()), 1,
