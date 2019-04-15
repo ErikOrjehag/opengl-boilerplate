@@ -77,27 +77,27 @@ void initGodrays() {
 }
 
 void initSkybox() {
-    GLuint skyShader =
-        loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
-    glUseProgram(skyShader);
-    glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
+    Shader skyShader { loadShaders("assets/shaders/sky.vert",
+                                   "assets/shaders/sky.frag") };
+
+    skyShader.upload("sky", 0);
 
     GLuint skyTex;
     LoadTGATextureSimple("assets/textures/sky.tga", &skyTex);
 
     sky = std::make_unique<Skybox>();
-    sky->setShader(Shader { skyShader });
+    sky->setShader(skyShader);
     sky->loadModel("assets/models/skybox.obj");
     sky->addTexture(skyTex);
     printError("Init skybox");
 }
 
 void initTerrain() {
-    GLuint terrainShader = loadShaders("assets/shaders/terrain.vert",
-                                       "assets/shaders/terrain.frag");
-    glUseProgram(terrainShader);
-    glUniform1i(glGetUniformLocation(terrainShader, "grass"), 0);
-    glUniform1i(glGetUniformLocation(terrainShader, "dirt"), 1);
+    Shader terrainShader = Shader { loadShaders(
+        "assets/shaders/terrain.vert", "assets/shaders/terrain.frag") };
+
+    terrainShader.upload("grass", 0);
+    terrainShader.upload("dirt", 1);
 
     GLuint grassTex, dirtTex;
     LoadTGATextureSimple("assets/textures/grass2_1024.tga", &grassTex);
@@ -105,7 +105,7 @@ void initTerrain() {
 
     terrain = std::make_unique<Terrain>();
     terrain->generate("assets/textures/terrain.tga");
-    terrain->setShader(Shader { terrainShader });
+    terrain->setShader(terrainShader);
     terrain->addTexture(grassTex);
     terrain->addTexture(dirtTex);
     printError("Init terrain");
@@ -121,13 +121,13 @@ void initWater() {
     refractionFBO =
         std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, true);
 
-    GLuint waterShader =
-        loadShaders("assets/shaders/water.vert", "assets/shaders/water.frag");
-    glUseProgram(waterShader);
-    glUniform1i(glGetUniformLocation(waterShader, "reflection"), 0);
-    glUniform1i(glGetUniformLocation(waterShader, "refraction"), 1);
-    glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
-    glUniform1i(glGetUniformLocation(waterShader, "dudv"), 3);
+    Shader waterShader = Shader { loadShaders("assets/shaders/water.vert",
+                                              "assets/shaders/water.frag") };
+
+    waterShader.upload("reflection", 0);
+    waterShader.upload("refraction", 1);
+    waterShader.upload("depth", 2);
+    waterShader.upload("dudv", 3);
 
     /* FBO DEBUGGING */
     GLuint debugShader =
@@ -144,7 +144,7 @@ void initWater() {
 
     water = std::make_unique<Water>();
     water->generate(100.0, waterPlane.w, 100.0, 75.0, 75.0);
-    water->setShader(Shader { waterShader });
+    water->setShader(waterShader);
     water->addTexture(reflectionFBO->texture);
     water->addTexture(refractionFBO->texture);
     water->addTexture(refractionFBO->depth);
