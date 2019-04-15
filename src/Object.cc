@@ -37,5 +37,5 @@ void Object::_draw(const Camera &cam) {
 
 void Object::loadModel(const std::string &modelName) {
     model = *LoadModelPlus(modelName.c_str());
-    modelname = modelName;
+    this->modelname = modelName;
 }
