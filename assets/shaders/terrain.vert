@@ -6,8 +6,7 @@ in vec2 inTexCoord;
 out vec2 texCoord;
 out vec3 fragNormal;
 
-// NY
-uniform mat4 projMatrix;
+uniform mat4 projection;
 uniform mat4 modelToWorld;
 uniform mat4 worldToView;
 uniform vec4 plane;

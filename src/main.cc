@@ -25,9 +25,11 @@ std::unique_ptr<Water> water;
 std::unique_ptr<Camera> cam;
 std::unique_ptr<FrameBuffer> reflectionFBO;
 std::unique_ptr<FrameBuffer> refractionFBO;
+std::unique_ptr<FrameBuffer> sunFBO;
 std::unique_ptr<ScreenFill> reflectionDebug;
 std::unique_ptr<ScreenFill> refractionDebug;
 std::unique_ptr<ScreenFill> depthDebug;
+std::unique_ptr<ScreenFill> sunDebug;
 std::unique_ptr<Object> sphereObject;
 
 mat4 camMatrix;
@@ -41,6 +43,9 @@ int buttonState = GLUT_UP;
 
 GLuint depth;
 
+GLuint blackShader;
+GLuint blackSkyTex;
+
 void bindDefaultFramebuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -52,12 +57,18 @@ void initCamera() {
     printError("Init camera");
 }
 
+void initGodrays() {
+    GLuint blackShader =
+        loadShaders("assets/shaders/black.vert", "assets/shaders/black.frag");
+    LoadTGATextureSimple("assets/textures/sky_black.tga", &blackSkyTex);
+    sunFBO = std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, false);
+    sunDebug = std::make_unique<ScreenFill>(0.0, 0.25, 0.25, 0.25);
+}
+
 void initSkybox() {
     GLuint skyShader =
         loadShaders("assets/shaders/sky.vert", "assets/shaders/sky.frag");
     glUseProgram(skyShader);
-    glUniformMatrix4fv(glGetUniformLocation(skyShader, "projMatrix"), 1,
-                       GL_TRUE, cam->projectionMatrix.m);
     glUniform1i(glGetUniformLocation(skyShader, "sky"), 0);
 
     GLuint skyTex;
@@ -74,8 +85,6 @@ void initTerrain() {
     GLuint terrainShader = loadShaders("assets/shaders/terrain.vert",
                                        "assets/shaders/terrain.frag");
     glUseProgram(terrainShader);
-    glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1,
-                       GL_TRUE, cam->projectionMatrix.m);
     glUniform1i(glGetUniformLocation(terrainShader, "grass"), 0);
     glUniform1i(glGetUniformLocation(terrainShader, "dirt"), 1);
 
@@ -104,8 +113,6 @@ void initWater() {
     GLuint waterShader =
         loadShaders("assets/shaders/water.vert", "assets/shaders/water.frag");
     glUseProgram(waterShader);
-    glUniformMatrix4fv(glGetUniformLocation(waterShader, "projMatrix"), 1,
-                       GL_TRUE, cam->projectionMatrix.m);
     glUniform1i(glGetUniformLocation(waterShader, "reflection"), 0);
     glUniform1i(glGetUniformLocation(waterShader, "refraction"), 1);
     glUniform1i(glGetUniformLocation(waterShader, "depth"), 2);
@@ -169,6 +176,7 @@ void init() {
     printError("GL inits");
 
     initCamera();
+    initGodrays();
     initTerrain();
     initSkybox();
     initWater();
@@ -194,8 +202,6 @@ void display() {
     // Reflection
     reflectionFBO->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // bindDefaultFramebuffer();
     sky->draw(camCopy);
     terrain->draw(camCopy, waterPlane * -1);
 
