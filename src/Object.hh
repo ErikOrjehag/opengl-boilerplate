@@ -3,7 +3,9 @@
 #include <optional>
 #include <string>
 #include <vector>
+
 #include "Camera.hh"
+#include "Shader.hh"
 #include "VectorUtils3.h"
 #include "loadobj.h"
 
@@ -12,7 +14,7 @@ class Object {
     Object();
     virtual ~Object() = default;
 
-    void setShader(GLuint shader);
+    void setShader(Shader shader);
     void addTexture(GLuint texture);
     void draw(const Camera &cam, std::optional<vec4> plane = std::nullopt);
     void loadModel(const std::string &modelName);
@@ -20,10 +22,10 @@ class Object {
     bool useTexCoord { true };
 
    protected:
-    virtual void _draw(const Camera &cam);
+    virtual void prepareDraw(const Camera &cam);
 
     Model model;
-    GLuint shader;
+    Shader shader;
     std::vector<GLuint> textures;
 
     // DEBUG

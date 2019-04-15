@@ -69,4 +69,4 @@ clean:
 	$(RM) *.o
 	$(RM) *.out
 	$(RM) $(BUILD_DIR)*
-	$(RM) $(OUT)/*
+	$(RM) $(OUT)

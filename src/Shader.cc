@@ -1,20 +1,39 @@
 #include "Shader.hh"
 
-Shader::Shader(GLuint shader) { this->shader = shader; }
+Shader::Shader(GLuint shader) : initialized { true } { this->program = shader; }
 
-void Shader::activate() { glUseProgram(this->shader); }
+void Shader::activate() {
+    if (!this->initialized) {
+        std::cerr << "Calling activate on un-initialized shader" << std::endl;
+        throw 1;
+    }
+    glUseProgram(this->program);
+}
 
 void Shader::upload(const std::string &uniform, float value) {
     activate();
-    glUniform1f(glGetUniformLocation(shader, uniform.c_str()), value);
+    glUniform1f(glGetUniformLocation(program, uniform.c_str()), value);
 }
+
+void Shader::upload(const std::string &uniform, int value) {
+    activate();
+    glUniform1i(glGetUniformLocation(program, uniform.c_str()), value);
+}
+
 void Shader::upload(const std::string &uniform, const vec3 &vector) {
     activate();
-    glUniform3fv(glGetUniformLocation(shader, uniform.c_str()), 1, &(vector.x));
+    glUniform3fv(glGetUniformLocation(program, uniform.c_str()), 1,
+                 &(vector.x));
+}
+
+void Shader::upload(const std::string &uniform, const vec4 &vector) {
+    activate();
+    glUniform4fv(glGetUniformLocation(program, uniform.c_str()), 1,
+                 &(vector.x));
 }
 
 void Shader::upload(const std::string &uniform, const mat4 &matrix) {
     activate();
-    glUniformMatrix4fv(glGetUniformLocation(shader, uniform.c_str()), 1,
+    glUniformMatrix4fv(glGetUniformLocation(program, uniform.c_str()), 1,
                        GL_TRUE, matrix.m);
 }
