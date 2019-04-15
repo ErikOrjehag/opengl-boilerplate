@@ -61,11 +61,11 @@ void initGodrays() {
     blackShader =
         loadShaders("assets/shaders/black.vert", "assets/shaders/black.frag");
     LoadTGATextureSimple("assets/textures/sky_black.tga", &blackSkyTex);
-    GLuint debugShader =
-        loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
+    GLuint godShader =
+        loadShaders("assets/shaders/debug.vert", "assets/shaders/godray.frag");
     sunFBO = std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, false);
     sunDebug = std::make_unique<ScreenFill>(0.0, 0.25, 0.25, 0.25);
-    sunDebug->setShader(debugShader);
+    sunDebug->setShader(godShader);
     sunDebug->addTexture(sunFBO->texture);
 }
 
@@ -213,6 +213,12 @@ void display() {
     terrain->draw(camCopy, waterPlane * -1);
 
     // Godrays
+    vec3 sunDir = { 1, -1.12, 0.58 };
+    vec3 sunPosWorld = cam->camPos - sunDir * 50;
+    vec4 sunPosScreen =
+        cam->projectionMatrix * cam->camMatrix * vec3tovec4(sunPosWorld);
+    sunPosScreen /= sunPosScreen.w;
+
     sunFBO->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Skybox blackSky = *sky;
@@ -222,13 +228,18 @@ void display() {
     blackTerrain.textures.clear();
     blackTerrain.setShader(blackShader);
     blackSky.draw(*cam);
-    // blackTerrain.draw(*cam);
+    blackTerrain.draw(*cam);
 
     // Scene
     bindDefaultFramebuffer();
     sky->draw(*cam);
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
+
+    // Objects
+    sphereObject->toWorld =
+        T(sunPosWorld.x, sunPosWorld.y, sunPosWorld.z) * S(15, 15, 15);
+    sphereObject->draw(*cam);
 
     // Depth
     glReadBuffer(GL_BACK);
@@ -241,9 +252,6 @@ void display() {
     refractionDebug->draw();
     depthDebug->draw();
     sunDebug->draw();
-
-    // Objects
-    sphereObject->draw(*cam);
 
     glutSwapBuffers();
 

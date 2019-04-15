@@ -18,6 +18,7 @@ class Object {
     void loadModel(const std::string &modelName);
     mat4 toWorld;
     bool useTexCoord { true };
+    bool useNormals { true };
 
     std::vector<GLuint> textures {};
 
