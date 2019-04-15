@@ -58,11 +58,15 @@ void initCamera() {
 }
 
 void initGodrays() {
-    GLuint blackShader =
+    blackShader =
         loadShaders("assets/shaders/black.vert", "assets/shaders/black.frag");
     LoadTGATextureSimple("assets/textures/sky_black.tga", &blackSkyTex);
+    GLuint debugShader =
+        loadShaders("assets/shaders/debug.vert", "assets/shaders/debug.frag");
     sunFBO = std::make_unique<FrameBuffer>(SCREEN_WIDTH, SCREEN_HEIGHT, false);
     sunDebug = std::make_unique<ScreenFill>(0.0, 0.25, 0.25, 0.25);
+    sunDebug->setShader(debugShader);
+    sunDebug->addTexture(sunFBO->texture);
 }
 
 void initSkybox() {
@@ -207,20 +211,35 @@ void display() {
     sky->draw(camCopy);
     terrain->draw(camCopy, waterPlane * -1);
 
+    // Godrays
+    sunFBO->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Skybox blackSky = *sky;
+    blackSky.textures.clear();
+    blackSky.textures.push_back(blackSkyTex);
+    Terrain blackTerrain = *terrain;
+    blackTerrain.textures.clear();
+    blackTerrain.setShader(blackShader);
+    blackSky.draw(*cam);
+    // blackTerrain.draw(*cam);
+
     // Scene
     bindDefaultFramebuffer();
     sky->draw(*cam);
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
 
+    // Depth
     glReadBuffer(GL_BACK);
     glBindTexture(GL_TEXTURE_2D, depth);
     glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 0, 0, SCREEN_WIDTH,
                      SCREEN_HEIGHT, 0);
 
+    // Debug HUD
     reflectionDebug->draw();
     refractionDebug->draw();
     depthDebug->draw();
+    sunDebug->draw();
 
     // Objects
     sphereObject->draw(*cam);

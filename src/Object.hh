@@ -18,12 +18,13 @@ class Object {
     void loadModel(const std::string &modelName);
     mat4 toWorld;
 
+    std::vector<GLuint> textures {};
+
    protected:
     virtual void _draw(const Camera &cam);
 
     Model model;
     GLuint shader;
-    std::vector<GLuint> textures;
 
     // DEBUG
     std::string modelname { "UNNAMED OBJECT" };

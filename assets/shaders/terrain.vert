@@ -17,5 +17,5 @@ void main(void)
 	gl_ClipDistance[0] = dot(worldPosition, plane);
 	fragNormal = mat3(modelToWorld) * inNormal;
 	texCoord = inTexCoord;
-	gl_Position = projMatrix * worldToView * worldPosition;
+	gl_Position = projection * worldToView * worldPosition;
 }
