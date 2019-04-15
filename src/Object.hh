@@ -16,12 +16,12 @@ class Object {
     void addTexture(GLuint texture);
     void draw(const Camera &cam, std::optional<vec4> plane = std::nullopt);
     void loadModel(const std::string &modelName);
+    mat4 toWorld;
 
    protected:
     virtual void _draw(const Camera &cam);
 
     Model model;
-    mat4 toWorld;
     GLuint shader;
     std::vector<GLuint> textures;
 

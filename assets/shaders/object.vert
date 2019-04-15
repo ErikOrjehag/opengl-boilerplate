@@ -11,5 +11,5 @@ uniform mat4 worldToView;
 void main(void)
 {
 	fragNormal = mat3(modelToWorld) * inNormal;
-	gl_Position = projMatrix * worldToView * modelToWorld * vec4(inPosition, 1.0);
+	gl_Position = projection * worldToView * modelToWorld * vec4(inPosition, 1.0);
 }
