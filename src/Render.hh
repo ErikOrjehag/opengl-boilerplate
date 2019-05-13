@@ -41,6 +41,9 @@ struct Render {
     void renderHUD();
     void display();
 
+    /* COLLISION */
+    void checkSphereCollisions();
+
     std::unique_ptr<Camera> cam;
     std::unique_ptr<Terrain> terrain;
     std::unique_ptr<Skybox> sky;

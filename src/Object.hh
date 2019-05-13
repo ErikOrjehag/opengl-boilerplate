@@ -58,6 +58,12 @@ class Object {
     float collisionRadius { 1.5 };
 
     /**
+     *  Places the object at the edge of the camera, in regards to the collision
+     *  radius.
+     */
+    void placeAtCamEdge(const Camera &camera);
+
+    /**
      *  Updates the current position of the object based on its collision.
      */
     void updatePostion();

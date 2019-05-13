@@ -78,6 +78,19 @@ bool Object::colliding(const Object &object) const {
     return (centerDistance - (object.collisionRadius + collisionRadius)) <= 0.0;
 }
 
+// Very unclear if this is the correct solution to this problem :D
+void Object::placeAtCamEdge(const Camera &camera) {
+    float dx = position.x - camera.camPos.x;
+    float dz = position.z - camera.camPos.z;
+
+    float dist_diff =
+        std::abs(distance(camera) - (collisionRadius + camera.collisionRadius));
+
+    position.x += dx * dist_diff;
+    position.z += dz * dist_diff;
+    updateToWorld();
+}
+
 void Object::updatePostion() {
     vec3 new_pos = position;
     new_pos.x += velocity.x * velocity_scaling;

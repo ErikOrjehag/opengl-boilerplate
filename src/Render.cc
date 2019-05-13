@@ -233,12 +233,8 @@ void Render::renderEnvironment() {
     terrain->draw(*cam, vec4(0, 1, 0, 1e6));
     water->draw(*cam);
 }
-void Render::renderObjects() {
-    // Objects
-    sphereObject->toWorld =
-        T(sunPosWorld.x, sunPosWorld.y, sunPosWorld.z) * S(15, 15, 15);
-    sphereObject->draw(*cam);
 
+void Render::checkSphereCollisions() {
     for (uint i = 0; i < spheres.size() - 1; ++i) {
         for (uint j = i + 1; j < spheres.size(); ++j) {
             std::shared_ptr<Object> first = spheres[i];
@@ -259,18 +255,29 @@ void Render::renderObjects() {
 
     for (auto &obj : spheres) {
         obj->updatePostion();
-        obj->draw(*cam);
         if (obj->colliding(*cam)) {
             std::cout << "Colliding!" << std::endl;
             vec3 new_vel = obj->forceVector(*cam);
             new_vel.y = 0;
             obj->setVelocity(new_vel);
+            obj->placeAtCamEdge(*cam);
         }
 
         obj->position.y = terrain->height(obj->position.x, obj->position.z);
 
         obj->updateToWorld();
     }
+}
+
+void Render::renderObjects() {
+    // Sphere at sun
+    sphereObject->toWorld =
+        T(sunPosWorld.x, sunPosWorld.y, sunPosWorld.z) * S(15, 15, 15);
+    sphereObject->draw(*cam);
+
+    // Colliding spheres
+    checkSphereCollisions();
+    for (auto &obj : spheres) obj->draw(*cam);
 }
 void Render::renderHUD() {
     // Depth
