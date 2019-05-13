@@ -50,9 +50,12 @@ class Object {
     vec3 forceVector(const Camera &camera) const;
     vec3 forceVector(const Object &object) const;
 
+    bool colliding(const Camera &camera) const;
+    bool colliding(const Object &object) const;
+
     void setVelocity(const vec3 new_velocity) { velocity = new_velocity; }
 
-    float collisionRadius { 0.0 };
+    float collisionRadius { 1.5 };
 
     /**
      *  Updates the current position of the object based on its collision.

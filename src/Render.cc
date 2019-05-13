@@ -125,14 +125,24 @@ void Render::initObjects() {
     sphereObject->toWorld = S(10, 10, 10) * T(10, 10, 10);
     sphereObject->useTexCoord = false;
 
-    sphere2 = std::make_unique<Object>();
-    sphere2->setShader(objectShader);
-    sphere2->loadModel("assets/models/orb.obj");
-    // sphere2->toWorld = T(100, 20, 220) * S(10, 10, 10);
-    sphere2->setPosition({ 100, terrain->height(100, 220) + 5, 220 });
-    sphere2->setScaling({ 10, 10, 10 });
-    sphere2->useTexCoord = false;
-    sphere2->collisionRadius = 10.0;
+    auto add_sphere = [&](float x, float z) {
+        vec3 pos { x, terrain->height(x, z), z };
+        std::shared_ptr<Object> sphere = std::make_shared<Object>();
+        sphere->setPosition(pos);
+        spheres.push_back(sphere);
+    };
+
+    // add_sphere(100, 220);
+    // add_sphere(100, 210);
+    add_sphere(110, 220);
+    add_sphere(110, 230);
+
+    for (auto &obj : spheres) {
+        obj->setShader(objectShader);
+        obj->loadModel("assets/models/orb.obj");
+        obj->useTexCoord = false;
+        obj->setScaling({ 10, 10, 10 });
+    }
 }
 
 void Render::initDebug() {
@@ -229,19 +239,38 @@ void Render::renderObjects() {
         T(sunPosWorld.x, sunPosWorld.y, sunPosWorld.z) * S(15, 15, 15);
     sphereObject->draw(*cam);
 
-    sphere2->updatePostion();
-    sphere2->draw(*cam);
-    if (sphere2->distance(*cam) <= sphere2->collisionRadius) {
-        std::cout << "Colliding!" << std::endl;
-        vec3 new_vel = sphere2->forceVector(*cam);
-        new_vel.y = 0;
-        sphere2->setVelocity(new_vel);
+    for (uint i = 0; i < spheres.size() - 1; ++i) {
+        for (uint j = i + 1; j < spheres.size(); ++j) {
+            std::shared_ptr<Object> first = spheres[i];
+            std::shared_ptr<Object> second = spheres[j];
+
+            if (first->colliding(*second)) {
+                vec3 new_vel_first = first->forceVector(*second);
+                vec3 new_vel_second = second->forceVector(*first);
+
+                new_vel_first.y = 0;
+                new_vel_second.y = 0;
+
+                first->setVelocity(new_vel_first);
+                second->setVelocity(new_vel_second);
+            }
+        }
     }
 
-    sphere2->position.y =
-        terrain->height(sphere2->position.x, sphere2->position.z);
+    for (auto &obj : spheres) {
+        obj->updatePostion();
+        obj->draw(*cam);
+        if (obj->colliding(*cam)) {
+            std::cout << "Colliding!" << std::endl;
+            vec3 new_vel = obj->forceVector(*cam);
+            new_vel.y = 0;
+            obj->setVelocity(new_vel);
+        }
 
-    sphere2->updateToWorld();
+        obj->position.y = terrain->height(obj->position.x, obj->position.z);
+
+        obj->updateToWorld();
+    }
 }
 void Render::renderHUD() {
     // Depth

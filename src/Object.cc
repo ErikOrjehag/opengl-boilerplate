@@ -68,6 +68,16 @@ vec3 Object::forceVector(const Object &object) const {
     return Normalize(forces);
 }
 
+bool Object::colliding(const Camera &camera) const {
+    float centerDistance = distance(camera);
+    return (centerDistance - (camera.collisionRadius + collisionRadius)) <= 0.0;
+}
+
+bool Object::colliding(const Object &object) const {
+    float centerDistance = distance(object);
+    return (centerDistance - (object.collisionRadius + collisionRadius)) <= 0.0;
+}
+
 void Object::updatePostion() {
     vec3 new_pos = position;
     new_pos.x += velocity.x * velocity_scaling;

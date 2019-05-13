@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <vector>
 
 #include "GL_utilities.h"
 #include "MicroGlut.h"
@@ -52,7 +53,8 @@ struct Render {
     std::unique_ptr<ScreenFill> depthDebug;
     std::unique_ptr<ScreenFill> sunDebug;
     std::unique_ptr<Object> sphereObject;
-    std::unique_ptr<Object> sphere2;
+
+    std::vector<std::shared_ptr<Object>> spheres {};
 
     const vec4 waterPlane { 0, -1, 0, 5 };
 
