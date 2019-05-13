@@ -114,6 +114,7 @@ void Render::initWater() {
 
 void Render::initObjects() {
     sphereObject = std::make_unique<Object>();
+
     Shader objectShader { loadShaders("assets/shaders/object.vert",
                                       "assets/shaders/object.frag") };
 
@@ -122,8 +123,16 @@ void Render::initObjects() {
     sphereObject->setShader(objectShader);
     sphereObject->loadModel("assets/models/orb.obj");
     sphereObject->toWorld = S(10, 10, 10) * T(10, 10, 10);
-
     sphereObject->useTexCoord = false;
+
+    sphere2 = std::make_unique<Object>();
+    sphere2->setShader(objectShader);
+    sphere2->loadModel("assets/models/orb.obj");
+    // sphere2->toWorld = T(100, 20, 220) * S(10, 10, 10);
+    sphere2->setPosition({ 100, terrain->height(100, 220) + 5, 220 });
+    sphere2->setScaling({ 10, 10, 10 });
+    sphere2->useTexCoord = false;
+    sphere2->collisionRadius = 10.0;
 }
 
 void Render::initDebug() {
@@ -160,6 +169,9 @@ void Render::init() {
     initObjects();
     initGodrays();
 }
+/*************
+ * RENDERING *
+ *************/
 
 void Render::renderWaterFBO() {
     // Refraction
@@ -216,6 +228,20 @@ void Render::renderObjects() {
     sphereObject->toWorld =
         T(sunPosWorld.x, sunPosWorld.y, sunPosWorld.z) * S(15, 15, 15);
     sphereObject->draw(*cam);
+
+    sphere2->updatePostion();
+    sphere2->draw(*cam);
+    if (sphere2->distance(*cam) <= sphere2->collisionRadius) {
+        std::cout << "Colliding!" << std::endl;
+        vec3 new_vel = sphere2->forceVector(*cam);
+        new_vel.y = 0;
+        sphere2->setVelocity(new_vel);
+    }
+
+    sphere2->position.y =
+        terrain->height(sphere2->position.x, sphere2->position.z);
+
+    sphere2->updateToWorld();
 }
 void Render::renderHUD() {
     // Depth

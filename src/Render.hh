@@ -52,6 +52,7 @@ struct Render {
     std::unique_ptr<ScreenFill> depthDebug;
     std::unique_ptr<ScreenFill> sunDebug;
     std::unique_ptr<Object> sphereObject;
+    std::unique_ptr<Object> sphere2;
 
     const vec4 waterPlane { 0, -1, 0, 5 };
 

@@ -13,7 +13,6 @@ Camera::Camera() {
 void Camera::increase() { camSpeed += SPEED_DELTA; }
 void Camera::decrease() {
     camSpeed = std::max<double>(0, camSpeed - SPEED_DELTA);
-    ;
 }
 
 void Camera::up() { camPos.y += camSpeed; }
@@ -27,6 +26,8 @@ void Camera::invertPitch() { yrot *= -1; }
 void Camera::updatePos(float mx, float mz) {
     camPos.x += mx * camSpeed * cos(xrot) - mz * camSpeed * sin(xrot);
     camPos.z += mx * camSpeed * sin(xrot) + mz * camSpeed * cos(xrot);
+    std::cout << "(x, y): (" << camPos.x << ", " << camPos.z << ")"
+              << std::endl;
 }
 
 void Camera::updateCamMatrix() {
