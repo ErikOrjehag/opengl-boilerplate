@@ -53,7 +53,12 @@ class Object {
     bool colliding(const Camera &camera) const;
     bool colliding(const Object &object) const;
 
-    void setVelocity(const vec3 new_velocity) { velocity = new_velocity; }
+    void setVelocity(const vec3 new_velocity) {
+        velocity = new_velocity;
+        speed = std::sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+    }
+
+    float getSpeed() const { return speed; }
 
     float collisionRadius { 1.5 };
 
@@ -70,19 +75,22 @@ class Object {
 
     vec3 position { 0, 0, 0 };
 
+    static constexpr const float deacceleration_constant { 0.95 };
+    static constexpr const float velocity_scaling { 0.2 };
+    static constexpr const float elasticity_constant { 1.5 };
+
    protected:
     virtual void prepareDraw(const Camera &cam);
 
-    vec3 scaling { 0, 0, 0 };
+    vec3 scaling { 1, 1, 1 };
 
     float rotx { 0.0 };
     float roty { 0.0 };
     float rotz { 0.0 };
 
-    vec3 velocity { 0, 0, 0 };
+    float speed { 0.0 };
 
-    const float deacceleration_constant { 0.95 };
-    const float velocity_scaling { 0.2 };
+    vec3 velocity { 0, 0, 0 };
 
     Model model;
 

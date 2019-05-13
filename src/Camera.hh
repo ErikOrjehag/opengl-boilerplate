@@ -34,12 +34,12 @@ class Camera {
     vec3 camPos = { 1, 8, 1 };
 
     const float collisionRadius { 2.0 };
+    float camSpeed = 0.7;
 
    private:
     // Movement
     float yrot = 0;
     float xrot = M_PI * 3.f / 4.f;
-    float camSpeed = 0.7;
 
     const float SPEED_DELTA = 0.01;
 };

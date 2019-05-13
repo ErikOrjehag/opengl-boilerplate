@@ -101,7 +101,8 @@ void Object::updatePostion() {
     velocity.y *= deacceleration_constant;
     velocity.z *= deacceleration_constant;
 
-    position = new_pos;
+    // Also does speed calulations
+    setPosition(new_pos);
     updateToWorld();
 }
 

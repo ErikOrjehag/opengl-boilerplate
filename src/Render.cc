@@ -121,7 +121,8 @@ void Render::initObjects() {
     objectShader.hasTextureCoords = false;
 
     sphereObject->setShader(objectShader);
-    sphereObject->loadModel("assets/models/orb.obj");
+    // sphereObject->loadModel("assets/models/orb.obj");
+    sphereObject->loadModel("assets/models/groundsphere.obj");
     sphereObject->toWorld = S(10, 10, 10) * T(10, 10, 10);
     sphereObject->useTexCoord = false;
 
@@ -136,6 +137,8 @@ void Render::initObjects() {
     // add_sphere(100, 210);
     add_sphere(110, 220);
     add_sphere(110, 230);
+    add_sphere(110, 240);
+    add_sphere(110, 250);
 
     for (auto &obj : spheres) {
         obj->setShader(objectShader);
@@ -241,14 +244,29 @@ void Render::checkSphereCollisions() {
             std::shared_ptr<Object> second = spheres[j];
 
             if (first->colliding(*second)) {
-                vec3 new_vel_first = first->forceVector(*second);
-                vec3 new_vel_second = second->forceVector(*first);
+                vec3 new_vel_first = first->forceVector(*second) *
+                                     second->getSpeed() *
+                                     Object::elasticity_constant;
+
+                vec3 new_vel_second = second->forceVector(*first) *
+                                      first->getSpeed() *
+                                      Object::elasticity_constant;
 
                 new_vel_first.y = 0;
                 new_vel_second.y = 0;
 
+                std::cout << "First old speed: " << first->getSpeed()
+                          << std::endl;
+                std::cout << "Second old speed: " << second->getSpeed()
+                          << std::endl;
+
                 first->setVelocity(new_vel_first);
                 second->setVelocity(new_vel_second);
+
+                std::cout << "First new speed: " << first->getSpeed()
+                          << std::endl;
+                std::cout << "Second new speed: " << second->getSpeed()
+                          << std::endl;
             }
         }
     }
@@ -257,7 +275,8 @@ void Render::checkSphereCollisions() {
         obj->updatePostion();
         if (obj->colliding(*cam)) {
             std::cout << "Colliding!" << std::endl;
-            vec3 new_vel = obj->forceVector(*cam);
+            vec3 new_vel = obj->forceVector(*cam) * cam->camSpeed *
+                           Object::elasticity_constant;
             new_vel.y = 0;
             obj->setVelocity(new_vel);
             obj->placeAtCamEdge(*cam);
