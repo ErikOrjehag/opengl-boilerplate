@@ -133,6 +133,10 @@ void Render::initObjects() {
         spheres.push_back(sphere);
     };
 
+    Shader objectShaderTextured { loadShaders(
+        "assets/shaders/object_textured.vert",
+        "assets/shaders/object_textured.frag") };
+
     // add_sphere(100, 220);
     // add_sphere(100, 210);
     add_sphere(110, 220);
@@ -140,10 +144,14 @@ void Render::initObjects() {
     add_sphere(110, 240);
     add_sphere(110, 250);
 
+    GLuint sphereTexture;
+    LoadTGATextureSimple("assets/textures/waterDUDV.tga", &sphereTexture);
+
     for (auto &obj : spheres) {
-        obj->setShader(objectShader);
+        obj->setShader(objectShaderTextured);
         obj->loadModel("assets/models/orb.obj");
-        obj->useTexCoord = false;
+        obj->addTexture(sphereTexture);
+        // obj->useTexCoord = false;
         obj->setScaling({ 10, 10, 10 });
     }
 }
