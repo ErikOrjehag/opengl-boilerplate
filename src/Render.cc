@@ -100,7 +100,8 @@ void Render::initWater() {
     refractionDebug->addTexture(refractionFBO->texture);
 
     GLuint dudvTex;
-    LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
+    // LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
+    LoadTGATextureSimple("assets/textures/dudv.tga", &dudvTex);
 
     water = std::make_unique<Water>();
     water->generate(100.0, waterPlane.w, 100.0, 75.0, 75.0);
