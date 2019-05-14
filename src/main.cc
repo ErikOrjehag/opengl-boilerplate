@@ -18,6 +18,23 @@ int buttonState = GLUT_UP;
 
 Render render {};
 
+// How many keys?????
+bool isPressed[500];
+
+/**
+ * Only executed the key action function if the button was not previously
+ * pressed.
+ */
+template <typename Function>
+void handleKeyAction(char c, Function f) {
+    if (glutKeyIsDown(c) && !isPressed[(int)c]) {
+        f();
+        isPressed[(int)c] = true;
+    } else if (!glutKeyIsDown(c)) {
+        isPressed[(int)c] = false;
+    }
+}
+
 void updateCam() {
     float mx = 0;
     float mz = 0;
@@ -31,8 +48,11 @@ void updateCam() {
 
     if (glutKeyIsDown('r')) render.cam->up();
     if (glutKeyIsDown('e')) render.cam->down();
-    if (glutKeyIsDown('i')) render.cam->invertPitch();
-    if (glutKeyIsDown('l')) onGround = !onGround;
+
+    handleKeyAction('i', [&]() { render.cam->invertPitch(); });
+    handleKeyAction('l', [&]() { onGround = !onGround; });
+    handleKeyAction(
+        't', [&]() { render.shouldRenderHUD = !render.shouldRenderHUD; });
 
     render.cam->updatePos(mx, mz);
 

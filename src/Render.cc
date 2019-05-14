@@ -328,7 +328,7 @@ void Render::display() {
     renderGodRays();
     renderEnvironment();
     renderObjects();
-    renderHUD();
+    if (shouldRenderHUD) renderHUD();
 
     glutSwapBuffers();
     printError("ERROR: DRAW");

@@ -68,4 +68,6 @@ struct Render {
 
     // TODO place somewhere nice :)
     vec3 sunPosWorld;
+
+    bool shouldRenderHUD { false };
 };
