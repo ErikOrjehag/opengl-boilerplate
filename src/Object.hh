@@ -60,7 +60,7 @@ class Object {
 
     float getSpeed() const { return speed; }
 
-    float collisionRadius { 1.5 };
+    float collisionRadius { 1.7 };
 
     /**
      *  Places the object at the edge of the camera, in regards to the collision

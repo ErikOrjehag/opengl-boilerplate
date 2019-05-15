@@ -12,7 +12,7 @@ class Water : public Object {
 
     void generate(float x, float y, float z, float width, float height);
 
-    float waveStrength = 0.005;
+    float waveStrength = 0.01;
     float scale = 0.6;
 
    private:

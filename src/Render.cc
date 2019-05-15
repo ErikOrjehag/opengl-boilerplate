@@ -139,11 +139,32 @@ void Render::initObjects() {
 
     // add_sphere(100, 220);
     // add_sphere(100, 210);
-    add_sphere(110, 220);
-    add_sphere(110, 230);
-    add_sphere(110, 240);
-    add_sphere(110, 250);
+    // add_sphere(110, 220);
+    // add_sphere(110, 230);
+    // add_sphere(110, 240);
+    // add_sphere(110, 250);
 
+    float start_x = 90;
+    float start_z = 190;
+    float dist = 6;
+    int nr_x = 4;
+    int nr_z = 4;
+
+    // for (int i = 0; i < nr_z; ++i) {
+    //     for (int j = 0; j < nr_x; ++j) {
+    //         if (j == 0 || j == nr_z - 1 || i == 0 || i == nr_x - 1) {
+    //             add_sphere(start_x + j * dist, start_z + i * dist);
+    //         }
+    //     }
+    // }
+
+    for (int i = 0; i < nr_z; ++i) {
+        for (int j = 0; j < nr_x; ++j) {
+            add_sphere(start_x + j * dist, start_z + i * dist);
+        }
+    }
+
+    // Sphere in water
     add_sphere(137, 136);
 
     GLuint sphereTexture;
@@ -201,7 +222,9 @@ void Render::renderWaterFBO() {
     refractionFBO->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     terrain->draw(*cam, waterPlane);
-    for (auto &obj : spheres) obj->draw(*cam, waterPlane);
+    vec4 offsetWaterPlane = waterPlane;
+    offsetWaterPlane.w += 0.0;
+    for (auto &obj : spheres) obj->draw(*cam, offsetWaterPlane);
 
     Camera camCopy = *cam;
 
@@ -267,18 +290,8 @@ void Render::checkSphereCollisions() {
                 new_vel_first.y = 0;
                 new_vel_second.y = 0;
 
-                std::cout << "First old speed: " << first->getSpeed()
-                          << std::endl;
-                std::cout << "Second old speed: " << second->getSpeed()
-                          << std::endl;
-
                 first->setVelocity(new_vel_first);
                 second->setVelocity(new_vel_second);
-
-                std::cout << "First new speed: " << first->getSpeed()
-                          << std::endl;
-                std::cout << "Second new speed: " << second->getSpeed()
-                          << std::endl;
             }
         }
     }
@@ -286,7 +299,6 @@ void Render::checkSphereCollisions() {
     for (auto &obj : spheres) {
         obj->updatePostion();
         if (obj->colliding(*cam)) {
-            std::cout << "Colliding!" << std::endl;
             vec3 new_vel = obj->forceVector(*cam) * cam->camSpeed *
                            Object::elasticity_constant;
             new_vel.y = 0;
