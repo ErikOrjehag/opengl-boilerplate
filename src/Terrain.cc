@@ -69,6 +69,8 @@ void Terrain::generate(std::string terrain_file) {
                              indexArray, vertexCount, triangleCount * 3);
 }
 
+void Terrain::prepareDraw(const Camera& cam) { glEnable(GL_CLIP_PLANE0); }
+
 float Terrain::texHeight(int x, int z) {
     return tex.imageData[(std::max(0, std::min<int>(tex.width - 1, x)) +
                           std::max(0, std::min<int>(tex.height - 1, z)) *

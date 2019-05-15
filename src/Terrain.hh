@@ -11,6 +11,8 @@ class Terrain : public Object {
     void generate(std::string terrain_file);
     float height(float x, float z);
 
+    void prepareDraw(const Camera &cam) override;
+
    private:
     float texHeight(int x, int z);
 
