@@ -12,14 +12,15 @@ uniform sampler2D depth;
 uniform sampler2D dudv;
 uniform float waveOffset;
 
-const float waveStrength = 0.02;
+uniform float waveStrength;
+uniform float scale;
 
 void main(void)
 {
 	float refractiveFactor = pow(dot(normalize(toCamera), vec3(0, 1, 0)), 2.5);
 
-	vec2 distortion1 = waveStrength * (texture(dudv, vec2(texCoord.x + waveOffset, texCoord.y)).rg * 2.0 - 1.0);
-	vec2 distortion2 = waveStrength * (texture(dudv, vec2(-texCoord.x + waveOffset, texCoord.y + waveOffset)).rg * 2.0 - 1.0);
+	vec2 distortion1 = waveStrength * (texture(dudv, vec2((texCoord.x + waveOffset) * scale, texCoord.y * scale)).rg * 2.0 - 1.0);
+	vec2 distortion2 = waveStrength * (texture(dudv, vec2((-texCoord.x + waveOffset) * scale, (texCoord.y + waveOffset) * scale)).rg * 2.0 - 1.0);
 	vec2 totalDistortion = distortion1 + distortion2;
 
 	vec2 ndc = (clipSpace.xy/clipSpace.w)/2.0 + 0.5;

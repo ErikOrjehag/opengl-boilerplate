@@ -144,6 +144,8 @@ void Render::initObjects() {
     add_sphere(110, 240);
     add_sphere(110, 250);
 
+    add_sphere(137, 136);
+
     GLuint sphereTexture;
     LoadTGATextureSimple("assets/textures/waterDUDV.tga", &sphereTexture);
 
@@ -199,6 +201,7 @@ void Render::renderWaterFBO() {
     refractionFBO->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     terrain->draw(*cam, waterPlane);
+    for (auto &obj : spheres) obj->draw(*cam, waterPlane);
 
     Camera camCopy = *cam;
 
@@ -212,6 +215,7 @@ void Render::renderWaterFBO() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     sky->draw(camCopy);
     terrain->draw(camCopy, waterPlane * -1);
+    for (auto &obj : spheres) obj->draw(camCopy, waterPlane * -1);
 }
 
 void Render::renderGodRays() {
@@ -304,7 +308,7 @@ void Render::renderObjects() {
 
     // Colliding spheres
     checkSphereCollisions();
-    for (auto &obj : spheres) obj->draw(*cam);
+    for (auto &obj : spheres) obj->draw(*cam, vec4(0, 1, 0, 1e6));
 }
 void Render::renderHUD() {
     // Depth

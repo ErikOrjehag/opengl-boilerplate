@@ -26,8 +26,8 @@ void Camera::invertPitch() { yrot *= -1; }
 void Camera::updatePos(float mx, float mz) {
     camPos.x += mx * camSpeed * cos(xrot) - mz * camSpeed * sin(xrot);
     camPos.z += mx * camSpeed * sin(xrot) + mz * camSpeed * cos(xrot);
-    // std::cout << "(x, y): (" << camPos.x << ", " << camPos.z << ")"
-    //           << std::endl;
+    std::cout << "(x, y): (" << camPos.x << ", " << camPos.z << ")"
+              << std::endl;
 }
 
 void Camera::updateCamMatrix() {

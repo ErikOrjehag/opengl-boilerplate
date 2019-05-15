@@ -56,6 +56,18 @@ void updateCam() {
 
     render.cam->updatePos(mx, mz);
 
+    // // Decrease wave strength
+    // handleKeyAction('n', [&]() { render.water->waveStrength -= 0.01; });
+
+    // // Increase wave strength
+    // handleKeyAction('m', [&]() { render.water->waveStrength += 0.01; });
+
+    // // Decrease wave scale
+    // handleKeyAction('v', [&]() { render.water->scale -= 0.01; });
+
+    // // Increase wave scale
+    // handleKeyAction('b', [&]() { render.water->scale += 0.1; });
+
     if (onGround) {
         float h = render.terrain->height(render.cam->x(), render.cam->z());
         render.cam->y() = h + 1.86;

@@ -24,7 +24,7 @@ void Object::draw(const Camera &cam, std::optional<vec4> plane) {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glDisable(GL_CLIP_PLANE0);
+    glEnable(GL_CLIP_PLANE0);
 
     prepareDraw(cam);
 

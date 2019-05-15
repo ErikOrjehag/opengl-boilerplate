@@ -31,6 +31,10 @@ void Water::prepareDraw(const Camera &cam) {
 
     float moveOffset = std::fmod(timeScale * t, 1.0);
 
+    glDisable(GL_CLIP_PLANE0);
+
     shader.upload("waveOffset", moveOffset);
     shader.upload("inCamera", cam.camPos);
+    shader.upload("scale", scale);
+    shader.upload("waveStrength", waveStrength);
 }
