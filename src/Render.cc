@@ -297,7 +297,6 @@ void Render::checkSphereCollisions() {
     }
 
     for (auto &obj : spheres) {
-        obj->updatePostion();
         if (obj->colliding(*cam)) {
             vec3 new_vel = obj->forceVector(*cam) * cam->camSpeed *
                            Object::elasticity_constant;
@@ -306,9 +305,9 @@ void Render::checkSphereCollisions() {
             obj->placeAtCamEdge(*cam);
         }
 
-        obj->position.y = terrain->height(obj->position.x, obj->position.z);
-
-        obj->updateToWorld();
+        obj->position.y =
+            terrain->height(obj->position.x, obj->position.z) + 1.75;
+        obj->updatePostion();
     }
 }
 
