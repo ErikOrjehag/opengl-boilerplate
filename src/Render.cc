@@ -101,6 +101,7 @@ void Render::initWater() {
 
     GLuint dudvTex;
     // LoadTGATextureSimple("assets/textures/waterDUDV.tga", &dudvTex);
+
     LoadTGATextureSimple("assets/textures/dudv.tga", &dudvTex);
 
     water = std::make_unique<Water>();
